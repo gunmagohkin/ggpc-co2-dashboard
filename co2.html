@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard | CO2 Emission</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="shortcut icon" href="images/gkg.ico" type="image/x-icon">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 p-4">
+
+<div class="container mx-auto px-2 sm:px-4">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow mb-4">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex justify-between items-center h-16">
+        <!-- Left logo -->
+        <div class="flex-shrink-0">
+          <img src="images/GGPC logo.png" alt="Logo" class="h-12 w-auto">
+        </div>
+
+        <!-- Hamburger button (mobile) -->
+        <div class="sm:hidden">
+          <button id="nav-toggle"
+                  class="relative w-6 h-4 flex flex-col justify-between items-center focus:outline-none group"
+                  aria-label="Open Menu">
+            <span class="block w-full h-0.5 bg-gray-700 transition-all duration-500"></span>
+            <span class="block w-full h-0.5 bg-gray-700 transition-all duration-500"></span>
+            <span class="block w-full h-0.5 bg-gray-700 transition-all duration-500"></span>
+          </button>
+        </div>
+
+        <!-- Right menu -->
+        <div id="nav-menu" class="hidden sm:flex space-x-6">
+          <a href="index.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
+            Energy vs Goods Produced
+          </a>
+          <a href="co2.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
+            CO2 Emission
+          </a>
+          <a href="ggpcvscdpc.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
+            GGPC vs CDPC
+          </a>
+        </div>
+      </div>
+
+      <!-- Mobile menu -->
+      <div id="nav-mobile"
+           class="sm:hidden hidden mt-2 transition-all duration-300 transform opacity-0 -translate-y-4">
+        <a href="index.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Energy vs Goods Produced</a>
+        <a href="co2.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">CO2 Emission</a>
+        <a href="ggpcvscdpc.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">GGPC vs CDPC</a>
+      </div>
+    </div>
+  </nav>
+
+  <h1 class="text-3xl font-bold text-center mb-4">CO2 Emissions</h1>
+
+  <!-- Data table -->
+  <div class="overflow-x-auto mt-6 w-full">
+    <div class="min-w-[1000px]">
+    <table class="table-auto min-w-full text-sm text-left border border-black">
+      <thead class="bg-white text-black">
+        <tr>
+          <th rowspan="2" class="border border-black px-2 py-1 text-red-600 font-bold text-center">CO₂</th>
+          <th colspan="5" class="border border-black text-center font-semibold">GGPC</th>
+          <th colspan="5" class="border border-black text-center font-semibold">CDPC</th>
+        </tr>
+        <tr>
+          <th class="border border-black text-center">Electricity</th>
+          <th class="border border-black text-center">LPG</th>
+          <th class="border border-black text-center">Gas</th>
+          <th class="border border-black text-center">Diesel</th>
+          <th class="border border-black text-center">Oil</th>
+          <th class="border border-black text-center">Electricity</th>
+          <th class="border border-black text-center">LPG</th>
+          <th class="border border-black text-center">Gas</th>
+          <th class="border border-black text-center">Diesel</th>
+          <th class="border border-black text-center">Oil</th>
+        </tr>
+      </thead>
+      <tbody class="text-[13px]">
+        <!-- Data rows -->
+        <tr class="border border-black">
+          <td class="border border-black px-2 py-1 font-semibold">JAN</td>
+          <td class="border border-black text-center">150.95</td>
+          <td class="border border-black text-center">91.8534</td>
+          <td class="border border-black text-center">0.19205</td>
+          <td class="border border-black text-center">5.22416</td>
+          <td class="border border-black text-center">3.02495</td>
+          <td class="border border-black text-center">128.414</td>
+          <td class="border border-black text-center">107.241</td>
+          <td class="border border-black text-center">1.50649</td>
+          <td class="border border-black text-center">4.51178</td>
+          <td class="border border-black text-center">4.30302</td>
+        </tr>
+        <tr class="border border-black bg-gray-50">
+          <td class="border border-black px-2 py-1 font-semibold">FEB</td>
+          <td class="border border-black text-center">174.488</td>
+          <td class="border border-black text-center">101.378</td>
+          <td class="border border-black text-center">0.13475</td>
+          <td class="border border-black text-center">4.51036</td>
+          <td class="border border-black text-center">2.77509</td>
+          <td class="border border-black text-center">156.365</td>
+          <td class="border border-black text-center">133.42</td>
+          <td class="border border-black text-center">0.86734</td>
+          <td class="border border-black text-center">5.0954</td>
+          <td class="border border-black text-center">6.02108</td>
+        </tr>
+        <tr class="border border-black">
+          <td class="border border-black px-2 py-1 font-semibold">MAR</td>
+          <td class="border border-black text-center">163.204</td>
+          <td class="border border-black text-center">97.7164</td>
+          <td class="border border-black text-center">0.28328</td>
+          <td class="border border-black text-center">4.42552</td>
+          <td class="border border-black text-center">2.59543</td>
+          <td class="border border-black text-center">142.609</td>
+          <td class="border border-black text-center">124.375</td>
+          <td class="border border-black text-center">0.35991</td>
+          <td class="border border-black text-center">4.37382</td>
+          <td class="border border-black text-center">1.67616</td>
+        </tr>
+        <!-- Empty rows APR–DEC -->
+        <tr class="bg-gray-50 border border-black"><td class="border border-black px-2 py-1 font-semibold">APR</td><td colspan="10" class="border border-black text-center text-gray-400">–</td></tr>
+        <tr class="border border-black"><td class="border border-black px-2 py-1 font-semibold">MAY</td><td colspan="10" class="border border-black text-center text-gray-400">–</td></tr>
+        <tr class="bg-gray-50 border border-black"><td class="border border-black px-2 py-1 font-semibold">JUN</td><td colspan="10" class="border border-black text-center text-gray-400">–</td></tr>
+        <tr class="border border-black"><td class="border border-black px-2 py-1 font-semibold">JUL</td><td colspan="10" class="border border-black text-center text-gray-400">–</td></tr>
+        <tr class="bg-gray-50 border border-black"><td class="border border-black px-2 py-1 font-semibold">AUG</td><td colspan="10" class="border border-black text-center text-gray-400">–</td></tr>
+        <tr class="border border-black"><td class="border border-black px-2 py-1 font-semibold">SEP</td><td colspan="10" class="border border-black text-center text-gray-400">–</td></tr>
+        <tr class="bg-gray-50 border border-black"><td class="border border-black px-2 py-1 font-semibold">OCT</td><td colspan="10" class="border border-black text-center text-gray-400">–</td></tr>
+        <tr class="border border-black"><td class="border border-black px-2 py-1 font-semibold">NOV</td><td colspan="10" class="border border-black text-center text-gray-400">–</td></tr>
+        <tr class="bg-gray-50 border border-black"><td class="border border-black px-2 py-1 font-semibold">DEC</td><td colspan="10" class="border border-black text-center text-gray-400">–</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- Add above your chart container -->
+<div class="flex flex-wrap justify-end items-center gap-2 mt-4 w-full">
+  <label for="stackToggle" class="text-sm font-medium">Total GGPC & CDPC</label>
+  <input type="checkbox" id="stackToggle" class="w-5 h-5 accent-blue-600">
+</div>
+    <!-- Chart container -->
+<div class="flex flex-col gap-6">
+  <!-- GGPC Chart -->
+  <div class="bg-white p-4 shadow rounded-lg mt-4" style="height: 500px; width: 100%;">
+    <canvas id="co2ChartGGPC"></canvas>
+  </div>
+
+  <!-- CDPC Chart -->
+  <div class="bg-white p-4 shadow rounded-lg mt-4" style="height: 500px; width: 100%;">
+    <canvas id="co2ChartCDPC"></canvas>
+  </div>
+</div>
+
+<script src="co2.js"></script>
+</body>
+</html>

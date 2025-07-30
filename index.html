@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard | Energy vs Goods Produced</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="shortcut icon" href="images/gkg.ico" type="image/x-icon">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 p-4">
+ 
+<div class="container mx-auto px-2 sm:px-4">
+  
+<nav class="bg-white shadow mb-4">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      <!-- Left logo -->
+      <div class="flex-shrink-0">
+        <img src="images/GGPC logo.png" alt="Logo" class="h-12 w-auto">
+      </div>
+    
+    <!-- Hamburger button (mobile) -->
+      <div class="sm:hidden">
+        <button id="nav-toggle"
+                class="relative w-6 h-4 flex flex-col justify-between items-center focus:outline-none group"
+                aria-label="Open Menu">
+          <span class="block w-full h-0.5 bg-gray-700 transition-all duration-500"></span>
+          <span class="block w-full h-0.5 bg-gray-700 transition-all duration-500"></span>
+          <span class="block w-full h-0.5 bg-gray-700 transition-all duration-500"></span>
+        </button>
+      </div>
+
+      <!-- Right menu -->
+      <div id="nav-menu" class="hidden sm:flex space-x-6">
+        <a href="index.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
+          Energy vs Goods Produced
+        </a>
+        <a href="co2.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
+          CO2 Emission
+        </a>
+        <a href="ggpcvscdpc.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
+          GGPC vs CDPC
+        </a>
+      </div>
+    </div>
+    <!-- Mobile menu, show/hide based on menu state. -->
+<div id="nav-mobile"
+     class="sm:hidden hidden mt-2 transition-all duration-300 transform opacity-0 -translate-y-4">
+
+      <a href="index.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Energy vs Goods Produced</a>
+      <a href="co2.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">CO2 Emission</a>
+      <a href="ggpcvscdpc.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">GGPC vs CDPC</a>
+    </div>
+  </div>
+</nav>
+
+   <h1 class="text-2xl font-bold text-center my-4"> Energy vs Goods Produced</h1>
+
+  <!-- GGPC Table -->
+ <div class="overflow-x-auto w-full">
+  <table id="ggpcTable" class="min-w-[700px] md:min-w-[1200px] lg:min-w-[1600px] w-full border border-gray-500 border-collapse text-xs sm:text-sm">
+    <thead>
+    
+      <tr class="bg-gray-200">
+        <th class="border border-gray-500"></th>
+        <th class="p-2 text-center border border-gray-500">Pcs</th>
+        <th class="p-2 text-center border border-gray-500">Kg</th>
+        <th class="p-2 text-center border border-gray-500">Kg</th>
+        <th class="p-2 text-center border border-gray-500">KWhr</th>
+        <th class="p-2 text-center border border-gray-500">Electricity CO2</th>
+        <th class="p-2 text-center border border-gray-500">Kg</th>
+        <th class="p-2 text-center border border-gray-500">KWhr</th>
+        <th class="p-2 text-center border border-gray-500">LPG CO2</th>
+        <th class="p-2 text-center border border-gray-500">Gasoline Liters</th>
+        <th class="p-2 text-center border border-gray-500">Gas CO2</th>
+        <th class="p-2 text-center border border-gray-500">Diesel Liters</th>
+        <th class="p-2 text-center border border-gray-500">Diesel CO2</th>
+        <th class="p-2 text-center border border-gray-500">Tellus 46</th>
+        <th class="p-2 text-center border border-gray-500">Tellus 32</th>
+        <th class="p-2 text-center border border-gray-500">EP-220</th>
+        <th class="p-2 text-center border border-gray-500">PL-1000</th>
+        <th class="p-2 text-center border border-gray-500">Oil CO2</th>
+        <th class="p-2 text-center border border-gray-500">Energy Intensity</th>
+        <th class="p-2 text-center border border-gray-500">t-CO2</th>
+        <th class="p-2 text-center border border-gray-500">CO2/pc</th>
+        <th class="p-2 text-center border border-gray-500">CO2/Kg</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Rows will be injected by JS -->
+    </tbody>
+  </table>
+</div>
+
+    
+<!-- CDPC Table -->
+<div class="overflow-x-auto mt-6 w-full">
+  <table id="cdpcTable" class="min-w-[900px] md:min-w-[1200px] lg:min-w-[1600px] text-xs text-left text-gray-700 border border-gray-300 border-collapse">
+    <thead class="bg-gray-100 text-[10px] uppercase">
+           <tr>
+        <th class="px-2 py-1 border border-gray-300 text-red-600 font-bold">CDPC</th>
+        <th colspan="2" class="px-2 py-1 border border-gray-300">INGOT USED (26th – 25th)</th>
+        <th class="px-2 py-1 border border-gray-300">Goods Produced (26th – 25th)</th>
+        <th colspan="2" class="px-2 py-1 border border-gray-300">Electricity (26th – 25th)</th>
+        <th colspan="3" class="px-2 py-1 border border-gray-300">LPG (26th – 25th)</th>
+        <th colspan="4" class="px-2 py-1 border border-gray-300">Fuel (1st – 30th)</th>
+        <th colspan="5" class="px-2 py-1 border border-gray-300">Oil usage in operation (1st – 30th) Liters</th>
+        <th rowspan="2" class="px-2 py-1 border border-gray-300">Energy Intensity<br>KWh/Kg</th>
+        <th rowspan="2" class="px-2 py-1 border border-gray-300">Operations Equivalent t-CO2</th>
+        <th rowspan="2" class="px-2 py-1 border border-gray-300">CO2 intensity vs Ingot<br>CO2/pc</th>
+        <th rowspan="2" class="px-2 py-1 border border-gray-300">CO2 intensity vs Ingot<br>CO2/Kg</th>
+      </tr>
+    </thead>
+    <tbody class="text-[11px]">
+
+    </tbody>
+  </table>
+</div>
+<!-- Toggle Button -->
+<div class="flex flex-wrap justify-end items-center gap-2 mt-4 mb-4 w-full">
+  <label for="stackToggle" class="text-sm font-medium">Total Electricity & LPG</label>
+  <input type="checkbox" id="stackToggle" class="w-5 h-5 accent-blue-600">
+</div>
+
+<!-- Chart Containers -->
+<div class="flex flex-col gap-8 w-full">
+  <div class="bg-white p-4 shadow rounded-lg w-full overflow-x-auto sm:overflow-x-visible">
+    <div class="min-w-[400px] sm:min-w-0 w-full">
+      <canvas id="ggpcEnergyChart"></canvas>
+    </div>
+  </div>
+  <div class="bg-white p-4 shadow rounded-lg w-full overflow-x-auto sm:overflow-x-visible">
+    <div class="min-w-[400px] sm:min-w-0 w-full">
+      <canvas id="cdpcEnergyChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<script src="main.js"></script>
+</body>
+</html>

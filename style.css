@@ -1,0 +1,30 @@
+
+  /* When .open is added to the button */
+  #nav-toggle.open span:nth-child(1) {
+    transform: rotate(45deg) translateY(8px);
+  }
+  #nav-toggle.open span:nth-child(2) {
+    opacity: 0; /* Hide the middle line */
+  }
+  #nav-toggle.open span:nth-child(3) {
+    transform: rotate(-45deg) translateY(-8px);
+  }
+
+  #nav-toggle span {
+    transform-origin: center;
+  }
+/* Swiper styles (Forced) */
+.swiper-container {
+  position: relative;
+}
+
+.swiper-pagination {
+  position: static !important;
+  margin-top: 1rem; /* space below chart */
+  margin-bottom: 0 !important;
+  display: flex;
+  justify-content: center;
+}
+body, html {
+  overflow-x: hidden;
+}

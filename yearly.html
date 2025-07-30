@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kintone Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+
+<div class="container mx-auto">
+  <h1 class="text-3xl font-bold text-center mb-4">Monthly Board Scope Dashboard</h1>
+
+  <div class="flex mb-6">
+    <div class="relative inline-block text-left">
+      <button type="button" class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50" id="menu-button">
+        Select Chart
+        <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+     <div class="origin-top-right absolute right-0 mt-2 overflow-x-auto rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1" id="dropdown-menu">
+  <div class="w-[450px] grid grid-cols-2 gap-2 p-3">
+        <a href="index.html" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Runtime vs Electric Consumption</a>
+          <a href="dc_runtime_vs_weight.html" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Die Casting: Runtime vs Weight Produced</a>
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Diecasting: Runtime vs Goods Produced</a>
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Diecasting: Runtime vs LPG</a>
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Diecasting: Goods Weight Produced vs LPG</a>
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Diecasting: Runtime vs Inggot used 5kg/pc</a>
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Diecasting: Goods Weight Produced vs Inggot Used 5kg/pc</a>
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Diecasting: Goods Weight Produced vs Oil Consumption</a>
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Diecasting: Runtime vs Coolant Consumption</a>
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Diecasting: Goods Weight Produced vs Coolant Consumption</a>
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Diecasting: Runtime vs Aluminum Waste Generated</a>
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Diecasting: Weight Produced vs Aluminum Generated</a>
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Diecasting: Daiki Tolling</a>
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Machining: Runtime vs LPG</a>
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Machining: Runtime vs Goods Produced</a>
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Machining: Runtime vs Coolant</a>  
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Machining: Goods Produced vs Coolant</a>
+          <a href="#" class="text-gray-700 block px-4 py-2 text-xs hover:bg-gray-100">Machining: Runtime vs Goods Produced</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
+    <div class="md:col-span-7 flex flex-col bg-white p-4 shadow rounded-lg h-full">
+      <h2 class="text-xl font-semibold mb-2">GGPC Run-Time vs Electric Consumption</h2>
+      <canvas id="runtimeChart"></canvas>
+    </div>
+
+    <div class="md:col-span-5 flex flex-col bg-white p-4 shadow rounded-lg h-full">
+      <h2 class="text-xl font-semibold mb-2">Consumption Rate (%)</h2>
+      <canvas id="consumptionRateChart"></canvas>
+    </div>
+  </div>
+
+  <div class="bg-white p-4 shadow rounded-lg">
+    <h2 class="text-xl font-semibold mb-2">Monthly Data Summary</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full border border-gray-300 text-sm">
+        <thead>
+        <tr class="bg-gray-200">
+          <th class="p-2 text-left"></th>
+          <th class="p-2 text-center">January</th>
+          <th class="p-2 text-center">February</th>
+          <th class="p-2 text-center">March</th>
+          <th class="p-2 text-center">April</th>
+          <th class="p-2 text-center">May</th>
+          <th class="p-2 text-center">June</th>
+          <th class="p-2 text-center">July</th>
+          <th class="p-2 text-center">August</th>
+          <th class="p-2 text-center">September</th>
+          <th class="p-2 text-center">October</th>
+          <th class="p-2 text-center">November</th>
+          <th class="p-2 text-center">December</th>
+          <th class="p-2 text-center">TOTAL</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="p-2">TOTAL RUN HOURS</td>
+          <td class="p-2 text-center">18,392</td>
+          <td class="p-2 text-center">26,125</td>
+          <td class="p-2 text-center">23,977</td>
+          <td class="p-2 text-center">19,373</td>
+          <td class="p-2 text-center">21,667</td>
+          <td class="p-2 text-center">22,751</td>
+          <td class="p-2 text-center">22,626</td>
+          <td class="p-2 text-center">24,695</td>
+          <td class="p-2 text-center">26,574</td>
+          <td class="p-2 text-center">27,139</td>
+          <td class="p-2 text-center">26,438</td>
+          <td class="p-2 text-center">22,959</td>
+          <td class="p-2 text-center font-bold">282,715</td>
+        </tr>
+        <tr>
+          <td class="p-2">Consumption</td>
+          <td class="p-2 text-center">313,441</td>
+          <td class="p-2 text-center">406,810</td>
+          <td class="p-2 text-center">359,603</td>
+          <td class="p-2 text-center">320,859</td>
+          <td class="p-2 text-center">365,476</td>
+          <td class="p-2 text-center">390,272</td>
+          <td class="p-2 text-center">385,708</td>
+          <td class="p-2 text-center">397,898</td>
+          <td class="p-2 text-center">402,442</td>
+          <td class="p-2 text-center">411,642</td>
+          <td class="p-2 text-center">422,809</td>
+          <td class="p-2 text-center">370,591</td>
+          <td class="p-2 text-center font-bold">4,547,551</td>
+        </tr>
+        <tr>
+          <td class="p-2">RATE</td>
+          <td class="p-2 text-center">5.87%</td>
+          <td class="p-2 text-center">6.42%</td>
+          <td class="p-2 text-center">6.67%</td>
+          <td class="p-2 text-center">6.04%</td>
+          <td class="p-2 text-center">5.93%</td>
+          <td class="p-2 text-center">5.83%</td>
+          <td class="p-2 text-center">5.87%</td>
+          <td class="p-2 text-center">6.21%</td>
+          <td class="p-2 text-center">6.60%</td>
+          <td class="p-2 text-center">6.59%</td>
+          <td class="p-2 text-center">6.25%</td>
+          <td class="p-2 text-center">6.20%</td>
+          <td class="p-2 text-center font-bold">6.22%</td>
+        </tr>
+        <tr>
+          <td class="p-2">Working days</td>
+          <td class="p-2 text-center">20</td>
+          <td class="p-2 text-center">26</td>
+          <td class="p-2 text-center">23</td>
+          <td class="p-2 text-center">21</td>
+          <td class="p-2 text-center">26</td>
+          <td class="p-2 text-center">24</td>
+          <td class="p-2 text-center">26</td>
+          <td class="p-2 text-center">25</td>
+          <td class="p-2 text-center">25</td>
+          <td class="p-2 text-center">25</td>
+          <td class="p-2 text-center">24</td>
+          <td class="p-2 text-center">21</td>
+          <td class="p-2 text-center font-bold">286</td>
+        </tr>
+      </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="yearly.js"></script>
+
+</body>
+</html>
