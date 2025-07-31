@@ -328,3 +328,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const loader = document.getElementById('loader');
+
+  try {
+    // --- your existing async data loading code ---
+    const kintoneData = await fetchKintoneData('/.netlify/functions/kintone');
+    // ... rest of your chart + table rendering ...
+
+  } catch (err) {
+    console.error(err);
+    alert('Failed to load data');
+  } finally {
+    // Hide loader once everything is done
+    loader.style.display = 'none';
+  }
+});
