@@ -97,6 +97,19 @@ function createEnergyChart(ctx, title, goodsProducedKg, electricityKWh, lpgKWh, 
       labels: months,
       datasets: [
         {
+          label: 'Goods Produced (Kg)',
+          data: goodsProducedKg,
+          type: 'line',
+          borderColor: 'blue',
+          backgroundColor: 'blue',
+          yAxisID: 'y',
+          tension: 0.1,
+          fill: false,
+          pointStyle: 'circle',
+          pointRadius: 5,
+          pointBackgroundColor: 'blue'
+        },
+        {
           label: 'Electricity KWh',
           data: electricityKWh,
           backgroundColor: 'orange',
@@ -113,19 +126,6 @@ function createEnergyChart(ctx, title, goodsProducedKg, electricityKWh, lpgKWh, 
           barPercentage: 0.7,
           categoryPercentage: 0.6,
           stack: stacked ? 'energy' : undefined
-        },
-        {
-          label: 'Goods Produced (Kg)',
-          data: goodsProducedKg,
-          type: 'line',
-          borderColor: 'blue',
-          backgroundColor: 'blue',
-          yAxisID: 'y',
-          tension: 0.1,
-          fill: false,
-          pointStyle: 'circle',
-          pointRadius: 5,
-          pointBackgroundColor: 'blue'
         }
       ]
     },
