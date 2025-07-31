@@ -17,6 +17,10 @@
 .swiper-container {
   position: relative;
 }
+.swiper-container {
+  width: 100%;
+  height: 350px; /* Ensure the container has height */
+}
 
 .swiper-pagination {
   position: static !important;

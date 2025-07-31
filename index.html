@@ -12,7 +12,6 @@
 <body class="bg-gray-100 p-4">
  
 <div class="container mx-auto px-2 sm:px-4">
-  
 <nav class="bg-white shadow mb-4">
   <div class="max-w-7xl mx-auto px-4">
     <div class="flex justify-between items-center h-16">
@@ -61,8 +60,20 @@
   <!-- GGPC Table -->
  <div class="overflow-x-auto w-full">
   <table id="ggpcTable" class="min-w-[700px] md:min-w-[1200px] lg:min-w-[1600px] w-full border border-gray-500 border-collapse text-xs sm:text-sm">
-    <thead>
-    
+    <thead class="bg-gray-100 text-[10px] uppercase">
+        <tr>
+            <th class="px-2 py-1 border border-gray-500 text-red-600 font-bold">GGPC</th>
+            <th colspan="2" class="px-2 py-1 border border-gray-500">INGOT USED (26th – 25th)</th>
+            <th class="px-2 py-1 border border-gray-500">Goods Produced (26th – 25th)</th>
+            <th colspan="2" class="px-2 py-1 border border-gray-500">Electricity (26th – 25th)</th>
+            <th colspan="3" class="px-2 py-1 border border-gray-500">LPG (26th – 25th)</th>
+            <th colspan="4" class="px-2 py-1 border border-gray-500">Fuel (1st – 30th)</th>
+            <th colspan="5" class="px-2 py-1 border border-gray-500">Oil usage in operation (1st – 30th) Liters</th>
+            <th rowspan="2" class="px-2 py-1 border border-gray-500">Energy Intensity<br>KWh/Kg</th>
+            <th rowspan="2" class="px-2 py-1 border border-gray-500">Operations Equivalent t-CO2</th>
+            <th rowspan="2" class="px-2 py-1 border border-gray-500">CO2 intensity vs Ingot<br>CO2/pc</th>
+            <th rowspan="2" class="px-2 py-1 border border-gray-500">CO2 intensity vs Ingot<br>CO2/Kg</th>
+      </tr>
       <tr class="bg-gray-200">
         <th class="border border-gray-500"></th>
         <th class="p-2 text-center border border-gray-500">Pcs</th>
@@ -82,10 +93,6 @@
         <th class="p-2 text-center border border-gray-500">EP-220</th>
         <th class="p-2 text-center border border-gray-500">PL-1000</th>
         <th class="p-2 text-center border border-gray-500">Oil CO2</th>
-        <th class="p-2 text-center border border-gray-500">Energy Intensity</th>
-        <th class="p-2 text-center border border-gray-500">t-CO2</th>
-        <th class="p-2 text-center border border-gray-500">CO2/pc</th>
-        <th class="p-2 text-center border border-gray-500">CO2/Kg</th>
       </tr>
     </thead>
     <tbody>
@@ -97,23 +104,43 @@
     
 <!-- CDPC Table -->
 <div class="overflow-x-auto mt-6 w-full">
-  <table id="cdpcTable" class="min-w-[900px] md:min-w-[1200px] lg:min-w-[1600px] text-xs text-left text-gray-700 border border-gray-300 border-collapse">
+  <table id="cdpcTable" class="min-w-[700px] md:min-w-[1200px] lg:min-w-[1600px] w-full border border-gray-500 border-collapse text-xs sm:text-sm">
     <thead class="bg-gray-100 text-[10px] uppercase">
-           <tr>
-        <th class="px-2 py-1 border border-gray-300 text-red-600 font-bold">CDPC</th>
-        <th colspan="2" class="px-2 py-1 border border-gray-300">INGOT USED (26th – 25th)</th>
-        <th class="px-2 py-1 border border-gray-300">Goods Produced (26th – 25th)</th>
-        <th colspan="2" class="px-2 py-1 border border-gray-300">Electricity (26th – 25th)</th>
-        <th colspan="3" class="px-2 py-1 border border-gray-300">LPG (26th – 25th)</th>
-        <th colspan="4" class="px-2 py-1 border border-gray-300">Fuel (1st – 30th)</th>
-        <th colspan="5" class="px-2 py-1 border border-gray-300">Oil usage in operation (1st – 30th) Liters</th>
-        <th rowspan="2" class="px-2 py-1 border border-gray-300">Energy Intensity<br>KWh/Kg</th>
-        <th rowspan="2" class="px-2 py-1 border border-gray-300">Operations Equivalent t-CO2</th>
-        <th rowspan="2" class="px-2 py-1 border border-gray-300">CO2 intensity vs Ingot<br>CO2/pc</th>
-        <th rowspan="2" class="px-2 py-1 border border-gray-300">CO2 intensity vs Ingot<br>CO2/Kg</th>
+        <tr>
+        <th class="px-2 py-1 border border-gray-500 text-red-600 font-bold">CDPC</th>
+        <th colspan="2" class="px-2 py-1 border border-gray-500">INGOT USED (26th – 25th)</th>
+        <th class="px-2 py-1 border border-gray-500">Goods Produced (26th – 25th)</th>
+        <th colspan="2" class="px-2 py-1 border border-gray-500">Electricity (26th – 25th)</th>
+        <th colspan="3" class="px-2 py-1 border border-gray-500">LPG (26th – 25th)</th>
+        <th colspan="4" class="px-2 py-1 border border-gray-500">Fuel (1st – 30th)</th>
+        <th colspan="5" class="px-2 py-1 border border-gray-500">Oil usage in operation (1st – 30th) Liters</th>
+        <th rowspan="2" class="px-2 py-1 border border-gray-500">Energy Intensity<br>KWh/Kg</th>
+        <th rowspan="2" class="px-2 py-1 border border-gray-500">Operations Equivalent t-CO2</th>
+        <th rowspan="2" class="px-2 py-1 border border-gray-500">CO2 intensity vs Ingot<br>CO2/pc</th>
+        <th rowspan="2" class="px-2 py-1 border border-gray-500">CO2 intensity vs Ingot<br>CO2/Kg</th>
+      </tr>
+       <tr class="bg-gray-200">
+        <th class="border border-gray-500"></th>
+        <th class="p-2 text-center border border-gray-500">Pcs</th>
+        <th class="p-2 text-center border border-gray-500">Kg</th>
+        <th class="p-2 text-center border border-gray-500">Kg</th>
+        <th class="p-2 text-center border border-gray-500">KWhr</th>
+        <th class="p-2 text-center border border-gray-500">Electricity CO2</th>
+        <th class="p-2 text-center border border-gray-500">Kg</th>
+        <th class="p-2 text-center border border-gray-500">KWhr</th>
+        <th class="p-2 text-center border border-gray-500">LPG CO2</th>
+        <th class="p-2 text-center border border-gray-500">Gasoline Liters</th>
+        <th class="p-2 text-center border border-gray-500">Gas CO2</th>
+        <th class="p-2 text-center border border-gray-500">Diesel Liters</th>
+        <th class="p-2 text-center border border-gray-500">Diesel CO2</th>
+        <th class="p-2 text-center border border-gray-500">Tellus 46</th>
+        <th class="p-2 text-center border border-gray-500">Tellus 32</th>
+        <th class="p-2 text-center border border-gray-500">EP-220</th>
+        <th class="p-2 text-center border border-gray-500">PL-1000</th>
+        <th class="p-2 text-center border border-gray-500">Oil CO2</th>
       </tr>
     </thead>
-    <tbody class="text-[11px]">
+    <tbody>
 
     </tbody>
   </table>

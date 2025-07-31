@@ -1,2 +1,14 @@
-# Local Netlify folder
-.netlify
+# Node dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Local Netlify build output
+.netlify/
+
+# Environment variables
+.env
+
+# System files
+.DS_Store
+Thumbs.db
