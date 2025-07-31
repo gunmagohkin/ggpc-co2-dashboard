@@ -1,5 +1,9 @@
 // netlify/functions/kintone.js
 
+// Import fetch for Node (needed for Netlify Node 14/16)
+const fetch = (...args) =>
+  import('node-fetch').then(({ default: fetch }) => fetch(...args));
+
 exports.handler = async function (event, context) {
   const apiToken = process.env.KINTONE_API_TOKEN;
   const domain = process.env.KINTONE_DOMAIN;
@@ -21,15 +25,29 @@ exports.handler = async function (event, context) {
 
   const url = `https://${domain}/k/v1/records.json?app=${appId}`;
 
-  // Debugging (optional)
+  // Debugging
   console.log('DEBUG URL:', url);
 
- const response = await fetch(url, {
-  headers: {
-    'X-Cybozu-API-Token': apiToken
+  let response;
+  try {
+    response = await fetch(url, {
+      headers: {
+        'X-Cybozu-API-Token': apiToken,
+      },
+    });
+  } catch (err) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: 'Failed to connect to Kintone',
+        details: err.message,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    };
   }
-});
-
 
   if (!response.ok) {
     const errorText = await response.text();

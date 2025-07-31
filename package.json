@@ -2,5 +2,23 @@
   "dependencies": {
     "dotenv": "^17.2.1",
     "node-fetch": "^2.7.0"
-  }
+  },
+  "name": "co2-dashboard",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ivancepe/ggpc-co2dashboard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ivancepe/ggpc-co2dashboard/issues"
+  },
+  "homepage": "https://github.com/ivancepe/ggpc-co2dashboard#readme",
+  "description": ""
 }
