@@ -223,3 +223,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     loader.style.display = 'none';
   }
 });
+// --- Mobile nav menu ---
+document.addEventListener('DOMContentLoaded', () => {
+  const navToggle = document.getElementById('nav-toggle');
+  const navMobile = document.getElementById('nav-mobile');
+
+  navToggle.addEventListener('click', () => {
+    const isHidden = navMobile.classList.contains('hidden');
+    if (isHidden) {
+      navMobile.classList.remove('hidden');
+      void navMobile.offsetWidth;
+      navMobile.classList.remove('opacity-0', '-translate-y-4');
+      navMobile.classList.add('opacity-100', 'translate-y-0');
+    } else {
+      navMobile.classList.add('opacity-0', '-translate-y-4');
+      navMobile.classList.remove('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        navMobile.classList.add('hidden');
+      }, 300);
+    }
+    navToggle.classList.toggle('open');
+  });
+});
