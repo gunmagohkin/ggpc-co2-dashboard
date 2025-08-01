@@ -114,6 +114,20 @@ document.addEventListener('DOMContentLoaded', async function () {
   const stackCheckbox = document.getElementById('stackToggle');
   const yearSelect = document.getElementById('year-select');
 
+  // --- Automatically generate the list of years ---
+  const allYears = Array.from(new Set(
+    [...allGGPC, ...allCDPC].map(r => new Date(r.dateFrom).getFullYear())
+  )).sort((a,b) => b - a); // latest first
+
+  // Populate dropdown
+  yearSelect.innerHTML = '';
+  allYears.forEach(year => {
+    const opt = document.createElement('option');
+    opt.value = year;
+    opt.textContent = year;
+    yearSelect.appendChild(opt);
+  });
+
   function updateDashboard(selectedYear) {
     const ggpcRecords = filterByYear(allGGPC, selectedYear);
     const cdpcRecords = filterByYear(allCDPC, selectedYear);
@@ -167,11 +181,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     updateDashboard(e.target.value);
   });
 
-  // Initial load
-  updateDashboard(yearSelect.value);
+  // Initial load with latest year
+  updateDashboard(allYears[0]);
 });
 
-// --- Mobile menu (unchanged) ---
+// --- Mobile menu ---
 document.addEventListener('DOMContentLoaded', () => {
   const navToggle = document.getElementById('nav-toggle');
   const navMobile = document.getElementById('nav-mobile');

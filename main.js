@@ -176,6 +176,23 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   const ggpcCanvas = document.getElementById('ggpcEnergyChart');
   const cdpcCanvas = document.getElementById('cdpcEnergyChart');
+  const yearSelect = document.getElementById('year-select');
+
+  // --- Automatically generate year list based on data ---
+  const allYears = Array.from(
+    new Set([...ggpcRecords, ...cdpcRecords]
+      .map(r => new Date(r.dateFrom).getFullYear())
+    )
+  ).sort((a, b) => b - a);
+
+  // Populate dropdown
+  yearSelect.innerHTML = '';
+  allYears.forEach(year => {
+    const opt = document.createElement('option');
+    opt.value = year;
+    opt.textContent = year;
+    yearSelect.appendChild(opt);
+  });
 
   // --- Update dashboard function ---
   function updateDashboard(selectedYear) {
@@ -255,17 +272,17 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   // --- Toggle stacked view ---
-  document.getElementById('stackToggle').addEventListener('change', function (e) {
-    updateDashboard(document.getElementById('year-select').value);
+  document.getElementById('stackToggle').addEventListener('change', function () {
+    updateDashboard(yearSelect.value);
   });
 
   // --- Year filter ---
-  document.getElementById('year-select').addEventListener('change', (e) => {
+  yearSelect.addEventListener('change', (e) => {
     updateDashboard(e.target.value);
   });
 
-  // --- Initial load ---
-  updateDashboard(document.getElementById('year-select').value);
+  // --- Initial load using latest year ---
+  updateDashboard(allYears[0]);
 });
 
 // --- Mobile nav menu ---

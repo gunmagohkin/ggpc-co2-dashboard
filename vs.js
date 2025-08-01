@@ -154,7 +154,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let allRecords = []; // store raw data globally
 
-  // Function to filter by year and rerender
   function renderDashboard(selectedYear) {
     const selectedYearInt = parseInt(selectedYear);
 
@@ -166,10 +165,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       .filter(r => r.plant === 'CDPC' && new Date(r.month).getFullYear() === selectedYearInt)
       .sort((a,b)=>new Date(a.month)-new Date(b.month));
 
-    // Render table
     renderVsTable({ ggpc, cdpc });
 
-    // Render monthly charts
     months.forEach(month => {
       const canvasId = `${month.toLowerCase()}Chart`;
       const canvas = document.getElementById(canvasId);
@@ -186,19 +183,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   try {
     const kintoneData = await fetchKintoneData('/.netlify/functions/kintone');
-
-    // Store all records
     allRecords = kintoneData.records.map(mapRecord);
 
-    // Initial render for default selected year
-    renderDashboard(yearSelect.value);
+    // --- Generate unique years from data ---
+    const years = Array.from(
+      new Set(allRecords.map(r => new Date(r.month).getFullYear()))
+    ).sort((a, b) => b - a); // descending
 
-    // Event listener for year dropdown
-    yearSelect.addEventListener('change', (e) => {
+    // Populate year dropdown
+    yearSelect.innerHTML = '';
+    years.forEach(y => {
+      const opt = document.createElement('option');
+      opt.value = y;
+      opt.textContent = y;
+      yearSelect.appendChild(opt);
+    });
+
+    // Render initial dashboard for latest year
+    renderDashboard(years[0]);
+
+    yearSelect.addEventListener('change', e => {
       renderDashboard(e.target.value);
     });
 
-    // Swiper initialization
     new Swiper('.swiper-container', {
       direction: 'horizontal',
       loop: true,
