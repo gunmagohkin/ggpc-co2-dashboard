@@ -132,26 +132,9 @@ function createChart(canvasId, title, ggpcData, cdpcData) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Fetch Kintone data
-  const kintoneData = await fetchKintoneData('/.netlify/functions/kintone');
-
-  // Separate GGPC and CDPC records
-  const ggpc = kintoneData.records
-    .filter(r => r.Plant_Location.value === 'GGPC')
-    .map(mapRecord);
-  const cdpc = kintoneData.records
-    .filter(r => r.Plant_Location.value === 'CDPC')
-    .map(mapRecord);
-
-  // Sort by month
-  const sortByMonth = (a, b) => new Date(a.month) - new Date(b.month);
-  ggpc.sort(sortByMonth);
-  cdpc.sort(sortByMonth);
-
-  // Render table
-  renderVsTable({ ggpc, cdpc });
-
-   const months = [
+  const yearSelect = document.getElementById('year-select');
+  const loader = document.getElementById('loader');
+  const months = [
     'JAN','FEB','MAR','APR','MAY','JUN',
     'JUL','AUG','SEP','OCT','NOV','DEC'
   ];
@@ -169,47 +152,67 @@ document.addEventListener('DOMContentLoaded', async () => {
       : [0, 0, 0, 0, 0];
   };
 
-  // Loop through all months and create charts if a canvas exists
-  months.forEach(month => {
-    const canvasId = `${month.toLowerCase()}Chart`; // e.g., janChart, febChart
-    const canvas = document.getElementById(canvasId);
-    if (canvas) {
-      createChart(
-        canvasId,
-        `${month} CO₂ Emissions`,
-        pickMonth(ggpc, month),
-        pickMonth(cdpc, month)
-      );
-    }
-  });
+  let allRecords = []; // store raw data globally
 
+  // Function to filter by year and rerender
+  function renderDashboard(selectedYear) {
+    const selectedYearInt = parseInt(selectedYear);
 
+    const ggpc = allRecords
+      .filter(r => r.plant === 'GGPC' && new Date(r.month).getFullYear() === selectedYearInt)
+      .sort((a,b)=>new Date(a.month)-new Date(b.month));
 
+    const cdpc = allRecords
+      .filter(r => r.plant === 'CDPC' && new Date(r.month).getFullYear() === selectedYearInt)
+      .sort((a,b)=>new Date(a.month)-new Date(b.month));
 
-  // Initialize Swiper AFTER charts are rendered
-  new Swiper('.swiper-container', {
-    direction: 'horizontal',
-    loop: true,
-    slidesPerView: 1,
-    pagination: {
-      el: '.swiper-pagination',
-      clickable: true,
-    },
-  });
-});
-document.addEventListener('DOMContentLoaded', async () => {
-  const loader = document.getElementById('loader');
+    // Render table
+    renderVsTable({ ggpc, cdpc });
+
+    // Render monthly charts
+    months.forEach(month => {
+      const canvasId = `${month.toLowerCase()}Chart`;
+      const canvas = document.getElementById(canvasId);
+      if (canvas) {
+        createChart(
+          canvasId,
+          `${month} CO₂ Emissions (${selectedYear})`,
+          pickMonth(ggpc, month),
+          pickMonth(cdpc, month)
+        );
+      }
+    });
+  }
 
   try {
-    // --- your existing async data loading code ---
     const kintoneData = await fetchKintoneData('/.netlify/functions/kintone');
-    // ... rest of your chart + table rendering ...
+
+    // Store all records
+    allRecords = kintoneData.records.map(mapRecord);
+
+    // Initial render for default selected year
+    renderDashboard(yearSelect.value);
+
+    // Event listener for year dropdown
+    yearSelect.addEventListener('change', (e) => {
+      renderDashboard(e.target.value);
+    });
+
+    // Swiper initialization
+    new Swiper('.swiper-container', {
+      direction: 'horizontal',
+      loop: true,
+      slidesPerView: 1,
+      pagination: {
+        el: '.swiper-pagination',
+        clickable: true,
+      },
+    });
 
   } catch (err) {
     console.error(err);
     alert('Failed to load data');
   } finally {
-    // Hide loader once everything is done
     loader.style.display = 'none';
   }
 });

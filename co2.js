@@ -91,66 +91,84 @@ function createChart(canvasId, title, data, stacked=false) {
   });
 }
 
+// --- Filter records by year ---
+function filterByYear(records, year) {
+  return records.filter(r => new Date(r.dateFrom).getFullYear() === parseInt(year));
+}
+
 // --- Main dashboard initialization ---
 document.addEventListener('DOMContentLoaded', async function () {
   let ggpcChart, cdpcChart;
-
-  // 1. Fetch Kintone data
   const kintoneData = await fetchKintoneData('/.netlify/functions/kintone');
 
-  // 2. Filter and map
-  const ggpcRecords = kintoneData.records
+  const allGGPC = kintoneData.records
     .filter(r => r.Plant_Location.value === 'GGPC')
     .map(mapRecord)
     .sort((a,b)=>new Date(a.dateFrom)-new Date(b.dateFrom));
 
-  const cdpcRecords = kintoneData.records
+  const allCDPC = kintoneData.records
     .filter(r => r.Plant_Location.value === 'CDPC')
     .map(mapRecord)
     .sort((a,b)=>new Date(a.dateFrom)-new Date(b.dateFrom));
 
-  // 3. Render table
-  renderCO2Table(ggpcRecords, cdpcRecords);
+  const stackCheckbox = document.getElementById('stackToggle');
+  const yearSelect = document.getElementById('year-select');
 
-  // 4. Prepare data for charts
-  const monthsCount = 12;
-  const fillArray = (records, key) => {
-    const arr = Array(monthsCount).fill(0);
-    records.forEach(r => {
-      const m = new Date(r.dateFrom).getMonth();
-      arr[m] = r[key];
-    });
-    return arr;
-  };
+  function updateDashboard(selectedYear) {
+    const ggpcRecords = filterByYear(allGGPC, selectedYear);
+    const cdpcRecords = filterByYear(allCDPC, selectedYear);
 
-  const ggpcData = {
-    Electricity: fillArray(ggpcRecords,'electricityCO2'),
-    LPG: fillArray(ggpcRecords,'lpgCO2'),
-    Gas: fillArray(ggpcRecords,'gasCO2'),
-    Diesel: fillArray(ggpcRecords,'dieselCO2'),
-    Oil: fillArray(ggpcRecords,'oilCO2'),
-  };
+    // Update table
+    renderCO2Table(ggpcRecords, cdpcRecords);
 
-  const cdpcData = {
-    Electricity: fillArray(cdpcRecords,'electricityCO2'),
-    LPG: fillArray(cdpcRecords,'lpgCO2'),
-    Gas: fillArray(cdpcRecords,'gasCO2'),
-    Diesel: fillArray(cdpcRecords,'dieselCO2'),
-    Oil: fillArray(cdpcRecords,'oilCO2'),
-  };
+    // Prepare data
+    const monthsCount = 12;
+    const fillArray = (records, key) => {
+      const arr = Array(monthsCount).fill(0);
+      records.forEach(r => {
+        const m = new Date(r.dateFrom).getMonth();
+        arr[m] = r[key];
+      });
+      return arr;
+    };
 
-  // 5. Render charts
-  ggpcChart = createChart('co2ChartGGPC', 'GGPC CO₂ Emissions (2025)', ggpcData);
-  cdpcChart = createChart('co2ChartCDPC', 'CDPC CO₂ Emissions (2025)', cdpcData);
+    const ggpcData = {
+      Electricity: fillArray(ggpcRecords,'electricityCO2'),
+      LPG: fillArray(ggpcRecords,'lpgCO2'),
+      Gas: fillArray(ggpcRecords,'gasCO2'),
+      Diesel: fillArray(ggpcRecords,'dieselCO2'),
+      Oil: fillArray(ggpcRecords,'oilCO2'),
+    };
 
-  // 6. Toggle stacked charts
-  document.getElementById('stackToggle').addEventListener('change', function (e) {
-    ggpcChart.destroy();
-    cdpcChart.destroy();
-    const stacked = e.target.checked;
-    ggpcChart = createChart('co2ChartGGPC', 'GGPC CO₂ Emissions (2025)', ggpcData, stacked);
-    cdpcChart = createChart('co2ChartCDPC', 'CDPC CO₂ Emissions (2025)', cdpcData, stacked);
+    const cdpcData = {
+      Electricity: fillArray(cdpcRecords,'electricityCO2'),
+      LPG: fillArray(cdpcRecords,'lpgCO2'),
+      Gas: fillArray(cdpcRecords,'gasCO2'),
+      Diesel: fillArray(cdpcRecords,'dieselCO2'),
+      Oil: fillArray(cdpcRecords,'oilCO2'),
+    };
+
+    // Destroy old charts
+    if (ggpcChart) ggpcChart.destroy();
+    if (cdpcChart) cdpcChart.destroy();
+
+    // Draw new charts
+    ggpcChart = createChart('co2ChartGGPC', `GGPC CO₂ Emissions (${selectedYear})`, ggpcData, stackCheckbox.checked);
+    cdpcChart = createChart('co2ChartCDPC', `CDPC CO₂ Emissions (${selectedYear})`, cdpcData, stackCheckbox.checked);
+  }
+
+  // Stacked toggle
+  stackCheckbox.addEventListener('change', () => {
+    updateDashboard(yearSelect.value);
   });
+
+  // Year change
+  yearSelect.addEventListener('change', e => {
+    updateDashboard(e.target.value);
+  });
+
+  // Initial load
+  updateDashboard(yearSelect.value);
 });
 
 // --- Mobile menu (unchanged) ---
@@ -192,19 +210,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// --- Loader hide after data load ---
 document.addEventListener('DOMContentLoaded', async () => {
   const loader = document.getElementById('loader');
-
   try {
-    // --- your existing async data loading code ---
-    const kintoneData = await fetchKintoneData('/.netlify/functions/kintone');
-    // ... rest of your chart + table rendering ...
-
+    await fetchKintoneData('/.netlify/functions/kintone');
   } catch (err) {
     console.error(err);
     alert('Failed to load data');
   } finally {
-    // Hide loader once everything is done
     loader.style.display = 'none';
   }
 });
