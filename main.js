@@ -2,7 +2,7 @@
 function mapRecord(r) {
   return {
     // Dates
-  dateFrom: r.Date_To?.value || '',
+    dateFrom: r.Date_To?.value || '',
 
     // Production data
     inggotUsedPcs: parseFloat(r.Inggot_used_pcs?.value || 0),
@@ -39,20 +39,19 @@ function mapRecord(r) {
   };
 }
 
-
 // --- Fetch data from Netlify serverless function ---
 async function fetchKintoneData(endpoint) {
   const response = await fetch(endpoint);
   if (!response.ok) throw new Error('Failed to fetch data');
   return response.json();
 }
-//-- for month convert to JAN instead of Date
+
+// -- Convert date to short month label
 function formatDateToMonth(dateString) {
   if (!dateString) return '';
   const date = new Date(dateString);
   return date.toLocaleString('en-US', { month: 'short' }).toUpperCase();
 }
-
 
 // --- Render table helper ---
 function renderTableRows(tableId, data) {
@@ -61,31 +60,21 @@ function renderTableRows(tableId, data) {
 
   data.forEach((row, rowIndex) => {
     const tr = document.createElement('tr');
-
-    // Optional: alternate row colors
     tr.classList.add(rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50');
 
     row.forEach((cell, cellIndex) => {
       const td = document.createElement('td');
       td.textContent = cell;
-
-      // Apply Tailwind classes
-      td.classList.add(
-        'px-2', 'py-1', 'border', 'border-gray-500'
-      );
-
-      // Make the first column bold like your static table
+      td.classList.add('px-2', 'py-1', 'border', 'border-gray-500');
       if (cellIndex === 0) {
         td.classList.add('font-semibold');
       }
-
       tr.appendChild(td);
     });
 
     tbody.appendChild(tr);
   });
 }
-
 
 // --- Chart.js configuration factory ---
 function createEnergyChart(ctx, title, goodsProducedKg, electricityKWh, lpgKWh, stacked = false) {
@@ -160,14 +149,20 @@ function createEnergyChart(ctx, title, goodsProducedKg, electricityKWh, lpgKWh, 
   });
 }
 
+// --- Filter by year helper ---
+function filterByYear(records, year) {
+  return records.filter(r => {
+    const recordYear = new Date(r.dateFrom).getFullYear();
+    return recordYear === parseInt(year);
+  });
+}
+
 // --- Main dashboard initialization ---
 document.addEventListener('DOMContentLoaded', async function () {
   let ggpcChart, cdpcChart;
 
-  // 1. Fetch Kintone data from serverless function
   const kintoneData = await fetchKintoneData('/.netlify/functions/kintone');
 
-  // 2. Filter and map records manually
   const ggpcRecords = kintoneData.records
     .filter(r => r.Plant_Location.value === 'GGPC')
     .map(mapRecord);
@@ -176,123 +171,110 @@ document.addEventListener('DOMContentLoaded', async function () {
     .filter(r => r.Plant_Location.value === 'CDPC')
     .map(mapRecord);
 
-    // Sort records by dateFrom ascending
-ggpcRecords.sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
-cdpcRecords.sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
+  ggpcRecords.sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
+  cdpcRecords.sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
 
-  // 3. Prepare datasets
-  const ggpcGoodsProducedKg = ggpcRecords.map(r => r.goodsProducedKg);
-  const ggpcElectricityKWh = ggpcRecords.map(r => r.electricityKWh);
-  const ggpcLpgKWh = ggpcRecords.map(r => r.lpgKWh);
-
-  const cdpcGoodsProducedKg = cdpcRecords.map(r => r.goodsProducedKg);
-  const cdpcElectricityKWh = cdpcRecords.map(r => r.electricityKWh);
-  const cdpcLpgKWh = cdpcRecords.map(r => r.lpgKWh);
-
-  // 4. Render charts
   const ggpcCanvas = document.getElementById('ggpcEnergyChart');
   const cdpcCanvas = document.getElementById('cdpcEnergyChart');
 
-  ggpcChart = createEnergyChart(
-    ggpcCanvas.getContext('2d'),
-    'GGPC ENERGY CONSUMPTION VS GOODS PRODUCED',
-    ggpcGoodsProducedKg,
-    ggpcElectricityKWh,
-    ggpcLpgKWh,
-    false
-  );
+  // --- Update dashboard function ---
+  function updateDashboard(selectedYear) {
+    const filteredGGPC = filterByYear(ggpcRecords, selectedYear);
+    const filteredCDPC = filterByYear(cdpcRecords, selectedYear);
 
-  cdpcChart = createEnergyChart(
-    cdpcCanvas.getContext('2d'),
-    'CDPC ENERGY CONSUMPTION VS GOODS PRODUCED',
-    cdpcGoodsProducedKg,
-    cdpcElectricityKWh,
-    cdpcLpgKWh,
-    false
-  );
+    renderTableRows('ggpcTable', filteredGGPC.map(r => [
+      formatDateToMonth(r.dateFrom),
+      r.inggotUsedPcs,
+      r.inggotUsedKg,
+      r.goodsProducedKg,
+      r.electricityKWh,
+      r.electricityCO2,
+      r.lpgKg,
+      r.lpgKWh,
+      r.lpgCO2,
+      r.gasolineLiters,
+      r.gasCO2,
+      r.dieselLiters,
+      r.dieselCO2,
+      r.tellus46,
+      r.tellus32,
+      r.ep220,
+      r.pl1000,
+      r.oilCO2,
+      r.energyIntensity,
+      r.operationsEquivalent,
+      r.co2IntensityPc,
+      r.co2IntensityKg
+    ]));
 
-  // 5. Toggle stacked view
-  document.getElementById('stackToggle').addEventListener('change', function (e) {
-    ggpcChart.destroy();
-    cdpcChart.destroy();
-    const stacked = e.target.checked;
+    renderTableRows('cdpcTable', filteredCDPC.map(r => [
+      formatDateToMonth(r.dateFrom),
+      r.inggotUsedPcs,
+      r.inggotUsedKg,
+      r.goodsProducedKg,
+      r.electricityKWh,
+      r.electricityCO2,
+      r.lpgKg,
+      r.lpgKWh,
+      r.lpgCO2,
+      r.gasolineLiters,
+      r.gasCO2,
+      r.dieselLiters,
+      r.dieselCO2,
+      r.tellus46,
+      r.tellus32,
+      r.ep220,
+      r.pl1000,
+      r.oilCO2,
+      r.energyIntensity,
+      r.operationsEquivalent,
+      r.co2IntensityPc,
+      r.co2IntensityKg
+    ]));
+
+    if (ggpcChart) ggpcChart.destroy();
+    if (cdpcChart) cdpcChart.destroy();
+
     ggpcChart = createEnergyChart(
       ggpcCanvas.getContext('2d'),
       'GGPC ENERGY CONSUMPTION VS GOODS PRODUCED',
-      ggpcGoodsProducedKg,
-      ggpcElectricityKWh,
-      ggpcLpgKWh,
-      stacked
+      filteredGGPC.map(r => r.goodsProducedKg),
+      filteredGGPC.map(r => r.electricityKWh),
+      filteredGGPC.map(r => r.lpgKWh),
+      document.getElementById('stackToggle').checked
     );
+
     cdpcChart = createEnergyChart(
       cdpcCanvas.getContext('2d'),
       'CDPC ENERGY CONSUMPTION VS GOODS PRODUCED',
-      cdpcGoodsProducedKg,
-      cdpcElectricityKWh,
-      cdpcLpgKWh,
-      stacked
+      filteredCDPC.map(r => r.goodsProducedKg),
+      filteredCDPC.map(r => r.electricityKWh),
+      filteredCDPC.map(r => r.lpgKWh),
+      document.getElementById('stackToggle').checked
     );
+  }
+
+  // --- Toggle stacked view ---
+  document.getElementById('stackToggle').addEventListener('change', function (e) {
+    updateDashboard(document.getElementById('year-select').value);
   });
 
-renderTableRows('ggpcTable', ggpcRecords.map(r => [
-  formatDateToMonth(r.dateFrom),
-  r.inggotUsedPcs,
-  r.inggotUsedKg,
-  r.goodsProducedKg,
-  r.electricityKWh,
-  r.electricityCO2,
-  r.lpgKg,
-  r.lpgKWh,
-  r.lpgCO2,
-  r.gasolineLiters,
-  r.gasCO2,
-  r.dieselLiters,
-  r.dieselCO2,
-  r.tellus46,
-  r.tellus32,
-  r.ep220,
-  r.pl1000,
-  r.oilCO2,
-  r.energyIntensity,
-  r.operationsEquivalent,
-  r.co2IntensityPc,
-  r.co2IntensityKg
-]));
+  // --- Year filter ---
+  document.getElementById('year-select').addEventListener('change', (e) => {
+    updateDashboard(e.target.value);
+  });
 
-renderTableRows('cdpcTable', cdpcRecords.map(r => [
-  formatDateToMonth(r.dateFrom),
-  r.inggotUsedPcs,
-  r.inggotUsedKg,
-  r.goodsProducedKg,
-  r.electricityKWh,
-  r.electricityCO2,
-  r.lpgKg,
-  r.lpgKWh,
-  r.lpgCO2,
-  r.gasolineLiters,
-  r.gasCO2,
-  r.dieselLiters,
-  r.dieselCO2,
-  r.tellus46,
-  r.tellus32,
-  r.ep220,
-  r.pl1000,
-  r.oilCO2,
-  r.energyIntensity,
-  r.operationsEquivalent,
-  r.co2IntensityPc,
-  r.co2IntensityKg
-]));
+  // --- Initial load ---
+  updateDashboard(document.getElementById('year-select').value);
 });
 
-// --- Mobile nav menu (unchanged) ---
+// --- Mobile nav menu ---
 document.addEventListener('DOMContentLoaded', () => {
   const navToggle = document.getElementById('nav-toggle');
   const navMobile = document.getElementById('nav-mobile');
 
   navToggle.addEventListener('click', () => {
     const isHidden = navMobile.classList.contains('hidden');
-
     if (isHidden) {
       navMobile.classList.remove('hidden');
       void navMobile.offsetWidth;
@@ -305,7 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
         navMobile.classList.add('hidden');
       }, 300);
     }
-
     navToggle.classList.toggle('open');
   });
 
@@ -314,14 +295,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const href = link.getAttribute('href');
     const isIndex = href === 'index.html' &&
       (current === '' || current === '/' || current === 'index.html');
-
     link.classList.add(
       'relative', 'font-medium', 'text-gray-700', 'hover:text-blue-600',
       'after:content-[""]', 'after:absolute', 'after:left-0', 'after:-bottom-1',
       'after:w-0', 'after:h-[2px]', 'after:bg-blue-600',
       'after:transition-all', 'after:duration-300', 'hover:after:w-full'
     );
-
     if (href === current || isIndex) {
       link.classList.remove('text-gray-700');
       link.classList.add('text-blue-700', 'after:w-full');
@@ -329,19 +308,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// --- Loader hide after data load ---
 document.addEventListener('DOMContentLoaded', async () => {
   const loader = document.getElementById('loader');
-
   try {
-    // --- your existing async data loading code ---
-    const kintoneData = await fetchKintoneData('/.netlify/functions/kintone');
-    // ... rest of your chart + table rendering ...
-
+    await fetchKintoneData('/.netlify/functions/kintone'); // Just to ensure it runs
   } catch (err) {
     console.error(err);
     alert('Failed to load data');
   } finally {
-    // Hide loader once everything is done
     loader.style.display = 'none';
   }
 });
