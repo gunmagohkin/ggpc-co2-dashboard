@@ -1,5 +1,7 @@
 // Keep a reference to all created charts
 const charts = {};
+let showCombined = false; // Track current display mode
+let currentData = { ggpc: [], cdpc: [] }; // Store current data for re-rendering
 
 // --- Utility function to map a Kintone record into structured fields ---
 function mapRecord(r) {
@@ -96,26 +98,44 @@ function createChart(canvasId, title, ggpcData, cdpcData) {
 
   const energyLabels = ['Electricity', 'LPG', 'Gas', 'Diesel', 'Oil'];
 
+  let datasets;
+  
+  if (showCombined) {
+    // Combine GGPC and CDPC data
+    const combinedData = ggpcData.map((value, index) => value + cdpcData[index]);
+    
+    datasets = [{
+      label: 'Total (GGPC + CDPC)',
+      data: combinedData,
+      backgroundColor: 'rgba(34,197,94,0.8)', // Green color for combined
+      barPercentage: 0.6,
+      categoryPercentage: 0.8
+    }];
+  } else {
+    // Show separate bars
+    datasets = [
+      {
+        label: 'GGPC',
+        data: ggpcData,
+        backgroundColor: 'rgba(59,130,246,0.8)',
+        barPercentage: 0.4,
+        categoryPercentage: 0.5
+      },
+      {
+        label: 'CDPC',
+        data: cdpcData,
+        backgroundColor: 'rgba(251,191,36,0.8)',
+        barPercentage: 0.4,
+        categoryPercentage: 0.5
+      }
+    ];
+  }
+
   charts[canvasId] = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: energyLabels,
-      datasets: [
-        {
-          label: 'GGPC',
-          data: ggpcData,
-          backgroundColor: 'rgba(59,130,246,0.8)',
-          barPercentage: 0.4,
-          categoryPercentage: 0.5
-        },
-        {
-          label: 'CDPC',
-          data: cdpcData,
-          backgroundColor: 'rgba(251,191,36,0.8)',
-          barPercentage: 0.4,
-          categoryPercentage: 0.5
-        }
-      ]
+      datasets: datasets
     },
     options: {
       responsive: true,
@@ -127,6 +147,48 @@ function createChart(canvasId, title, ggpcData, cdpcData) {
       scales: {
         y: { beginAtZero: true, title: { display: true, text: 'CO₂ Emission' } }
       }
+    }
+  });
+}
+
+// Function to toggle between combined and separate view
+function toggleCombinedView() {
+  showCombined = !showCombined;
+  const toggleBtn = document.getElementById('toggle-combined-btn');
+  toggleBtn.textContent = showCombined ? 'Show Separate' : 'Show Combined';
+  
+  // Re-render all charts with current data
+  const months = [
+    'JAN','FEB','MAR','APR','MAY','JUN',
+    'JUL','AUG','SEP','OCT','NOV','DEC'
+  ];
+
+  const pickMonth = (records, month) => {
+    const rec = records.find(r => formatDateToMonth(r.month) === month);
+    return rec
+      ? [
+          rec.electricityCO2,
+          rec.lpgCO2,
+          rec.gasCO2,
+          rec.dieselCO2,
+          rec.oilCO2
+        ]
+      : [0, 0, 0, 0, 0];
+  };
+
+  const yearSelect = document.getElementById('year-select');
+  const selectedYear = yearSelect.value;
+
+  months.forEach(month => {
+    const canvasId = `${month.toLowerCase()}Chart`;
+    const canvas = document.getElementById(canvasId);
+    if (canvas) {
+      createChart(
+        canvasId,
+        `${month} CO₂ Emissions (${selectedYear})`,
+        pickMonth(currentData.ggpc, month),
+        pickMonth(currentData.cdpc, month)
+      );
     }
   });
 }
@@ -165,6 +227,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       .filter(r => r.plant === 'CDPC' && new Date(r.month).getFullYear() === selectedYearInt)
       .sort((a,b)=>new Date(a.month)-new Date(b.month));
 
+    // Store current data for toggle functionality
+    currentData = { ggpc, cdpc };
+
     renderVsTable({ ggpc, cdpc });
 
     months.forEach(month => {
@@ -179,6 +244,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
       }
     });
+  }
+
+  // Add event listener for toggle button
+  const toggleBtn = document.getElementById('toggle-combined-btn');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', toggleCombinedView);
   }
 
   try {
@@ -223,6 +294,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     loader.style.display = 'none';
   }
 });
+
 // --- Mobile nav menu ---
 document.addEventListener('DOMContentLoaded', () => {
   const navToggle = document.getElementById('nav-toggle');
