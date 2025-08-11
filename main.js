@@ -64,7 +64,16 @@ function renderTableRows(tableId, data) {
 
     row.forEach((cell, cellIndex) => {
       const td = document.createElement('td');
-      td.textContent = cell;
+
+      // ✅ Format numbers with thousand separators
+      if (typeof cell === 'number' && !isNaN(cell)) {
+        td.textContent = Number.isInteger(cell)
+          ? cell.toLocaleString('en-US')
+          : cell.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      } else {
+        td.textContent = cell;
+      }
+
       td.classList.add('px-2', 'py-1', 'border', 'border-gray-500');
       if (cellIndex === 0) {
         td.classList.add('font-semibold');

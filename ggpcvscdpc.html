@@ -20,47 +20,55 @@
   </div>
   <div class="container mx-auto px-2 sm:px-4">
 
-        <nav class="bg-white shadow mb-4">
-      <div class="max-w-7xl mx-auto px-4">
-        <div class="flex justify-between items-center h-16">
-          <!-- Left logo -->
-          <div class="flex-shrink-0">
-            <img src="images/GGPC logo.png" alt="Logo" class="h-12 w-auto">
-          </div>
-        
-        <!-- Hamburger button (mobile) -->
-          <div class="sm:hidden">
-            <button id="nav-toggle"
-                    class="relative w-6 h-4 flex flex-col justify-between items-center focus:outline-none group"
-                    aria-label="Open Menu">
-              <span class="block w-full h-0.5 bg-gray-700 transition-all duration-500"></span>
-              <span class="block w-full h-0.5 bg-gray-700 transition-all duration-500"></span>
-              <span class="block w-full h-0.5 bg-gray-700 transition-all duration-500"></span>
-            </button>
-          </div>
+  <nav class="bg-white shadow mb-4">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      <!-- Left logo -->
+      <div class="flex-shrink-0">
+        <img src="images/GGPC logo.png" alt="Logo" class="h-12 w-auto">
+      </div>
+    
+    <!-- Hamburger button (mobile) -->
+      <div class="sm:hidden">
+        <button id="nav-toggle"
+                class="relative w-6 h-4 flex flex-col justify-between items-center focus:outline-none group"
+                aria-label="Open Menu">
+          <span class="block w-full h-0.5 bg-gray-700 transition-all duration-500"></span>
+          <span class="block w-full h-0.5 bg-gray-700 transition-all duration-500"></span>
+          <span class="block w-full h-0.5 bg-gray-700 transition-all duration-500"></span>
+        </button>
+      </div>
 
-          <!-- Right menu -->
-          <div id="nav-menu" class="hidden sm:flex space-x-6">
-            <a href="index.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
-              Energy vs Goods Produced
-            </a>
-            <a href="co2.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
-              CO2 Emission
-            </a>
-            <a href="ggpcvscdpc.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
-              GGPC vs CDPC
-            </a>
-          </div>
-        </div>
-       
-   <!-- Mobile menu, show/hide based on menu state. -->
+      <!-- Right menu -->
+      <div id="nav-menu" class="hidden sm:flex space-x-6">
+        <a href="index.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
+          Energy vs Goods Produced
+        </a>
+        <a href="vsruntime.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
+          Energy  vs Actual Runtime
+        </a>
+         <!-- <a href="vsproductcost.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
+          Energy  vs Product Cost
+        </a> -->
+        <a href="co2.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
+          CO2 Emission
+        </a>
+        <a href="ggpcvscdpc.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
+          GGPC vs CDPC
+        </a>
+         
+      </div>
+    </div>
+    <!-- Mobile menu, show/hide based on menu state. -->
     <div id="nav-mobile" class="sm:hidden hidden mt-2 transition-all duration-300 transform opacity-0 -translate-y-4">
       <a href="index.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Energy vs Goods Produced</a>
+      <a href="vsruntime.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Energy  vs Actual Runtime</a>
+      <!-- <a href="vsproductcost.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Energy  vs Product Cost</a> -->
       <a href="co2.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">CO2 Emission</a>
       <a href="ggpcvscdpc.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">GGPC vs CDPC</a>
     </div>
-      </div>
-    </nav>
+  </div>
+</nav>
 <!-- Keep the original filters div as is -->
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
   <h1 class="text-2xl font-bold text-center my-4">GGPC vs CDPC</h1>

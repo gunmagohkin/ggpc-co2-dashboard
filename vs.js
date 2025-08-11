@@ -54,7 +54,11 @@ function renderVsTable(data) {
       const td = document.createElement('td');
       td.classList.add('border','border-black','text-center','px-2','py-1');
       if (bold) td.classList.add('font-semibold');
-      td.textContent = value !== undefined ? value : '–';
+      if (typeof value === 'number') {
+        td.textContent = value.toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+      } else {
+        td.textContent = value !== undefined ? value : '–';
+      }
       return td;
     };
 
@@ -63,22 +67,22 @@ function renderVsTable(data) {
 
     // GGPC values
     if (ggpc) {
-      tr.appendChild(cell(ggpc.electricityCO2.toFixed(3)));
-      tr.appendChild(cell(ggpc.lpgCO2.toFixed(3)));
-      tr.appendChild(cell(ggpc.gasCO2.toFixed(3)));
-      tr.appendChild(cell(ggpc.dieselCO2.toFixed(3)));
-      tr.appendChild(cell(ggpc.oilCO2.toFixed(3)));
+      tr.appendChild(cell(ggpc.electricityCO2));
+      tr.appendChild(cell(ggpc.lpgCO2));
+      tr.appendChild(cell(ggpc.gasCO2));
+      tr.appendChild(cell(ggpc.dieselCO2));
+      tr.appendChild(cell(ggpc.oilCO2));
     } else {
       for (let i = 0; i < 5; i++) tr.appendChild(cell('–'));
     }
 
     // CDPC values
     if (cdpc) {
-      tr.appendChild(cell(cdpc.electricityCO2.toFixed(3)));
-      tr.appendChild(cell(cdpc.lpgCO2.toFixed(3)));
-      tr.appendChild(cell(cdpc.gasCO2.toFixed(3)));
-      tr.appendChild(cell(cdpc.dieselCO2.toFixed(3)));
-      tr.appendChild(cell(cdpc.oilCO2.toFixed(3)));
+      tr.appendChild(cell(cdpc.electricityCO2));
+      tr.appendChild(cell(cdpc.lpgCO2));
+      tr.appendChild(cell(cdpc.gasCO2));
+      tr.appendChild(cell(cdpc.dieselCO2));
+      tr.appendChild(cell(cdpc.oilCO2));
     } else {
       for (let i = 0; i < 5; i++) tr.appendChild(cell('–'));
     }
@@ -142,10 +146,25 @@ function createChart(canvasId, title, ggpcData, cdpcData) {
       maintainAspectRatio: false,
       plugins: {
         legend: { position: 'bottom' },
-        title: { display: true, text: title }
+        title: { display: true, text: title },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ' + context.raw.toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+            }
+          }
+        }
       },
       scales: {
-        y: { beginAtZero: true, title: { display: true, text: 'CO₂ Emission' } }
+        y: { 
+          beginAtZero: true, 
+          title: { display: true, text: 'CO₂ Emission' },
+          ticks: {
+            callback: function(value) {
+              return value.toLocaleString();
+            }
+          }
+        }
       }
     }
   });

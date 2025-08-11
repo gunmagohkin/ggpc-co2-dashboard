@@ -43,7 +43,7 @@ function renderCO2Table(recordsGGPC, recordsCDPC) {
       cols.forEach(col => {
         const td = document.createElement('td');
         td.className = 'border border-black text-center';
-        td.textContent = rec ? rec[col].toLocaleString() : '–';
+        td.textContent = rec ? rec[col].toLocaleString(undefined, { maximumFractionDigits: 2 }) : '–';
         if (!rec) td.classList.add('text-gray-400');
         tr.appendChild(td);
       });
@@ -77,14 +77,27 @@ function createChart(canvasId, title, data, stacked=false) {
       maintainAspectRatio: false,
       plugins: {
         legend: { position: 'bottom' },
-        title: { display: true, text: title }
+        title: { display: true, text: title },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              let value = context.raw;
+              return context.dataset.label + ': ' + value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+            }
+          }
+        }
       },
       scales: {
         x: { stacked: stacked },
         y: {
           stacked: stacked,
           beginAtZero: true,
-          title: { display: true, text: 'CO₂ Emission' }
+          title: { display: true, text: 'CO₂ Emission' },
+          ticks: {
+            callback: function(value) {
+              return value.toLocaleString();
+            }
+          }
         }
       }
     }
