@@ -335,14 +335,14 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // --- Loader hide after data load ---
-document.addEventListener('DOMContentLoaded', async () => {
-  const loader = document.getElementById('loader');
-  try {
-    await fetchKintoneData('/.netlify/functions/kintone'); // Just to ensure it runs
-  } catch (err) {
-    console.error(err);
-    alert('Failed to load data');
-  } finally {
-    loader.style.display = 'none';
-  }
-});
+// document.addEventListener('DOMContentLoaded', async () => {
+//   const loader = document.getElementById('loader');
+//   try {
+//     await fetchKintoneData('/.netlify/functions/kintone'); // Just to ensure it runs
+//   } catch (err) {
+//     console.error(err);
+//     alert('Failed to load data');
+//   } finally {
+//     loader.style.display = 'none';
+//   }s
+// });
