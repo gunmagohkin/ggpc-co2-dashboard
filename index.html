@@ -154,7 +154,7 @@
             
             <!-- Loading Overlay -->
             <div id="loading-overlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center hidden">
-                <img src="images/GGPC logo.png" alt="Loading..." class="w-32 animate-pulse" onerror="this.style.display='none'">
+                <img src="images/GGPC logo.png" alt="Loading..." class="w-32 animate-bounce" onerror="this.style.display='none'">
             </div>
         </div>
     </div>
@@ -380,6 +380,7 @@
 
                 loadingOverlay.classList.remove('hidden');
                 loginButton.disabled = true;
+                const loginStartTime = Date.now();
 
                 try {
                     const response = await fetch('/.netlify/functions/login', {
@@ -389,14 +390,20 @@
                     });
 
                     const result = await response.json();
+                    const elapsedTime = Date.now() - loginStartTime;
+                    const remainingTime = Math.max(0, 1500 - elapsedTime); // Minimum 1.5 second display
 
                     if (result.success) {
-                        localStorage.setItem('loggedInUser', JSON.stringify(result.user));
-                        window.location.href = 'energy_vs_goods.html';
+                        setTimeout(() => {
+                            localStorage.setItem('loggedInUser', JSON.stringify(result.user));
+                            window.location.href = 'energy_vs_goods.html';
+                        }, remainingTime);
                     } else {
-                        errorMessage.classList.remove('hidden');
-                        setTimeout(() => errorMessage.classList.add('hidden'), 3000);
-                        resetFormState();
+                        setTimeout(() => {
+                            errorMessage.classList.remove('hidden');
+                            setTimeout(() => errorMessage.classList.add('hidden'), 3000);
+                            resetFormState();
+                        }, remainingTime);
                     }
                 } catch (error) {
                     console.error('Login error:', error);
@@ -419,3 +426,4 @@
 
 </body>
 </html>
+

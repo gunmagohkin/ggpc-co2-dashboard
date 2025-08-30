@@ -23,7 +23,7 @@ const DATA_CONFIG = {
   lpg_co2: 'lpg_co2',
   diecasting_runtime: 'Diecasting_Runtime',
   machining_runtime: 'Machining_Runtime',
-  total_runtime: 'Total_Runtime'  // Added this line
+  total_runtime: 'Total_Runtime'
 };
 
 // --- UTILITY FUNCTIONS ---
@@ -53,7 +53,7 @@ function groupRecordsByMonth(records) {
   };
   
   records.forEach(record => {
-    const dateStr = record['Date_To']?.value;  // Changed to Date_To
+    const dateStr = record['Date_To']?.value;
     const plant = record['Plant_Location']?.value;
     
     if (!dateStr || !plant) return;
@@ -61,7 +61,6 @@ function groupRecordsByMonth(records) {
     const date = new Date(dateStr);
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     
-    // Determine which plant this record belongs to
     const plantKey = plant === 'GGPC' ? 'GGPC' : 'CDPC';
     
     if (!grouped[plantKey][monthKey]) {
@@ -94,7 +93,6 @@ function renderTable(tableId, company, groupedData, selectedYear) {
   
   const companyData = groupedData[company] || {};
   
-  // Create rows for each month
   for (let month = 1; month <= 12; month++) {
     const monthKey = `${selectedYear}-${String(month).padStart(2, '0')}`;
     const monthRecords = companyData[monthKey] || [];
@@ -103,17 +101,15 @@ function renderTable(tableId, company, groupedData, selectedYear) {
     const row = document.createElement('tr');
     row.className = 'hover:bg-gray-50';
     
-    // Month name
     const monthCell = document.createElement('td');
-    monthCell.className = 'px-2 py-1 border border-gray-500 font-medium';
+    monthCell.className = 'px-2 py-1 border font-semibold bg-gray-50 text-center';
     monthCell.textContent = MONTH_NAMES[month - 1];
     row.appendChild(monthCell);
     
-    // Data cells - updated to include total_runtime
     const fields = ['electricity_kwhr', 'electricity_co2', 'lpg_kg', 'lpg_kwhr', 'lpg_co2', 'diecasting_runtime', 'machining_runtime', 'total_runtime'];
     fields.forEach((field) => {
       const cell = document.createElement('td');
-      cell.className = 'px-2 py-1 border border-gray-500 text-center';
+      cell.className = 'px-2 py-1 border text-center';
       const value = totals[field] || 0;
       cell.textContent = formatNumber(value);
       row.appendChild(cell);
@@ -136,7 +132,7 @@ function renderChart(chartId, company, groupedData, selectedYear) {
   const lpgData = [];
   const diecastingData = [];
   const machiningData = [];
-  const totalRuntimeData = []; // Added this line
+  const totalRuntimeData = [];
   
   for (let month = 1; month <= 12; month++) {
     const monthKey = `${selectedYear}-${String(month).padStart(2, '0')}`;
@@ -148,10 +144,9 @@ function renderChart(chartId, company, groupedData, selectedYear) {
     lpgData.push(totals.lpg_kwhr || 0);
     diecastingData.push(totals.diecasting_runtime || 0);
     machiningData.push(totals.machining_runtime || 0);
-    totalRuntimeData.push(totals.total_runtime || 0); // Added this line
+    totalRuntimeData.push(totals.total_runtime || 0);
   }
   
-  // Destroy existing chart if it exists
   const existingChart = company === 'GGPC' ? ggpcEnergyChart : cdpcEnergyChart;
   if (existingChart) {
     existingChart.destroy();
@@ -263,23 +258,11 @@ function renderChart(chartId, company, groupedData, selectedYear) {
     }
   });
   
-  // Store chart reference
   if (company === 'GGPC') {
     ggpcEnergyChart = chart;
   } else {
     cdpcEnergyChart = chart;
   }
-}
-
-// --- CHART HEIGHT SETUP ---
-function setupChartHeights() {
-  const chartCanvases = ['ggpcEnergyChart', 'cdpcEnergyChart'];
-  chartCanvases.forEach(id => {
-    const canvas = document.getElementById(id);
-    if (canvas) {
-      canvas.style.height = '400px';
-    }
-  });
 }
 
 // --- YEAR SELECT SETUP ---
@@ -290,7 +273,6 @@ function setupYearSelect() {
   const currentYear = new Date().getFullYear();
   yearSelect.innerHTML = '';
   
-  // Add years from current year back to 2020
   for (let year = currentYear; year >= 2020; year--) {
     const option = document.createElement('option');
     option.value = year;
@@ -304,28 +286,26 @@ function setupYearSelect() {
 
 // --- MOBILE NAVIGATION ---
 function setupMobileNavigation() {
-  const navToggle = document.getElementById('nav-toggle');
-  const navMobile = document.getElementById('nav-mobile');
-  
-  if (navToggle && navMobile) {
-    navToggle.addEventListener('click', () => {
-      const isHidden = navMobile.classList.contains('hidden');
-      
-      if (isHidden) {
-        navMobile.classList.remove('hidden');
-        setTimeout(() => {
-          navMobile.classList.remove('opacity-0', '-translate-y-4');
-          navMobile.classList.add('opacity-100', 'translate-y-0');
-        }, 10);
-      } else {
-        navMobile.classList.remove('opacity-100', 'translate-y-0');
-        navMobile.classList.add('opacity-0', '-translate-y-4');
-        setTimeout(() => {
-          navMobile.classList.add('hidden');
-        }, 300);
-      }
+  const menuBtn = document.getElementById('menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  if (menuBtn && mobileMenu) {
+    menuBtn.addEventListener('click', () => {
+        const isClosed = mobileMenu.style.maxHeight === '' || mobileMenu.style.maxHeight === '0px';
+        mobileMenu.style.maxHeight = isClosed ? mobileMenu.scrollHeight + "px" : '0px';
     });
   }
+}
+
+// --- DROPDOWN ANIMATIONS ---
+function setupDropdowns() {
+  document.querySelectorAll("select").forEach(select => {
+    const iconWrapper = select.nextElementSibling;
+    if (iconWrapper) {
+        select.addEventListener("focus", () => iconWrapper.classList.add("rotate-180"));
+        select.addEventListener("blur", () => iconWrapper.classList.remove("rotate-180"));
+    }
+  });
 }
 
 // --- ENHANCED TOGGLE FUNCTIONALITY ---
@@ -334,12 +314,10 @@ function setupToggleButtons() {
   const runtimeToggle = document.getElementById('runtimeStackToggle');
   
   if (energyToggle) {
-    // Add visual feedback
     energyToggle.addEventListener('change', (e) => {
       const isStacked = e.target.checked;
       updateChartStacking('energy', isStacked);
       
-      // Add visual feedback to label
       const label = document.querySelector('label[for="energyStackToggle"]');
       if (label) {
         if (isStacked) {
@@ -350,8 +328,6 @@ function setupToggleButtons() {
           label.textContent = 'Total Electricity & LPG';
         }
       }
-      
-      // Show toast notification
       showToast(isStacked ? 'Energy charts stacked' : 'Energy charts unstacked', 'success');
     });
   }
@@ -361,7 +337,6 @@ function setupToggleButtons() {
       const isStacked = e.target.checked;
       updateChartStacking('runtime', isStacked);
       
-      // Add visual feedback to label
       const label = document.querySelector('label[for="runtimeStackToggle"]');
       if (label) {
         if (isStacked) {
@@ -372,20 +347,15 @@ function setupToggleButtons() {
           label.textContent = 'Total Diecast Runtime & Machining Runtime';
         }
       }
-      
-      // Show toast notification
       showToast(isStacked ? 'Runtime view combined' : 'Runtime view separated', 'success');
     });
   }
 }
 
 function updateChartStacking(type, isStacked) {
-  // Update GGPC chart
   if (ggpcEnergyChart) {
     updateSingleChart(ggpcEnergyChart, type, isStacked);
   }
-  
-  // Update CDPC chart
   if (cdpcEnergyChart) {
     updateSingleChart(cdpcEnergyChart, type, isStacked);
   }
@@ -393,12 +363,10 @@ function updateChartStacking(type, isStacked) {
 
 function updateSingleChart(chart, type, isStacked) {
   if (type === 'energy') {
-    // Update energy datasets (Electricity and LPG)
     chart.options.scales.y.stacked = isStacked;
     chart.data.datasets[0].stack = isStacked ? 'energy' : undefined;
     chart.data.datasets[1].stack = isStacked ? 'energy' : undefined;
     
-    // Change colors for better stacked visualization
     if (isStacked) {
       chart.data.datasets[0].backgroundColor = 'rgba(59, 130, 246, 0.9)';
       chart.data.datasets[1].backgroundColor = 'rgba(249, 115, 22, 0.9)';
@@ -408,26 +376,16 @@ function updateSingleChart(chart, type, isStacked) {
     }
     
   } else if (type === 'runtime') {
-    // For runtime, we'll create a combined view instead of traditional stacking
     if (isStacked) {
-      // Hide individual runtime lines and Total Runtime line
-      if (chart.data.datasets[2]) {
-        chart.data.datasets[2].hidden = true;
-      }
-      if (chart.data.datasets[3]) {
-        chart.data.datasets[3].hidden = true;
-      }
-      if (chart.data.datasets[4]) {
-        chart.data.datasets[4].hidden = true;
-      }
+      if (chart.data.datasets[2]) chart.data.datasets[2].hidden = true;
+      if (chart.data.datasets[3]) chart.data.datasets[3].hidden = true;
+      if (chart.data.datasets[4]) chart.data.datasets[4].hidden = true;
       
-      // Add or update combined runtime dataset
       const combinedRuntimeData = chart.data.datasets[2].data.map((diecast, index) => {
         const machining = chart.data.datasets[3].data[index] || 0;
         return diecast + machining;
       });
       
-      // Check if combined dataset exists
       let combinedDataset = chart.data.datasets.find(d => d.label === 'Total Combined Runtime (hrs)');
       if (!combinedDataset) {
         combinedDataset = {
@@ -447,91 +405,50 @@ function updateSingleChart(chart, type, isStacked) {
         combinedDataset.hidden = false;
       }
     } else {
-      // Show individual runtime lines including Total Runtime
-      if (chart.data.datasets[2]) {
-        chart.data.datasets[2].hidden = false;
-      }
-      if (chart.data.datasets[3]) {
-        chart.data.datasets[3].hidden = false;
-      }
-      if (chart.data.datasets[4]) {
-        chart.data.datasets[4].hidden = false;
-      }
+      if (chart.data.datasets[2]) chart.data.datasets[2].hidden = false;
+      if (chart.data.datasets[3]) chart.data.datasets[3].hidden = false;
+      if (chart.data.datasets[4]) chart.data.datasets[4].hidden = false;
       
-      // Hide combined dataset
       const combinedDataset = chart.data.datasets.find(d => d.label === 'Total Combined Runtime (hrs)');
       if (combinedDataset) {
         combinedDataset.hidden = true;
       }
     }
   }
-  
-  // Smooth update with animation
   chart.update('active');
 }
 
-// Toast notification system
+// --- TOAST NOTIFICATIONS ---
 function showToast(message, type = 'info') {
-  // Remove existing toasts
   const existingToasts = document.querySelectorAll('.toast-notification');
   existingToasts.forEach(toast => toast.remove());
   
   const toast = document.createElement('div');
   toast.className = `toast-notification fixed top-20 right-4 px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium z-50 transition-all duration-300 transform translate-x-full`;
   
-  // Set color based on type
-  if (type === 'success') {
-    toast.classList.add('bg-green-500');
-  } else if (type === 'error') {
-    toast.classList.add('bg-red-500');
-  } else {
-    toast.classList.add('bg-blue-500');
-  }
+  if (type === 'success') toast.classList.add('bg-green-500');
+  else if (type === 'error') toast.classList.add('bg-red-500');
+  else toast.classList.add('bg-blue-500');
   
   toast.textContent = message;
   document.body.appendChild(toast);
   
-  // Animate in
-  setTimeout(() => {
-    toast.classList.remove('translate-x-full');
-  }, 10);
-  
-  // Animate out and remove
+  setTimeout(() => toast.classList.remove('translate-x-full'), 10);
   setTimeout(() => {
     toast.classList.add('translate-x-full');
     setTimeout(() => toast.remove(), 300);
   }, 2000);
 }
 
-// Reset all toggles function
-function resetToggleStates() {
-  const energyToggle = document.getElementById('energyStackToggle');
-  const runtimeToggle = document.getElementById('runtimeStackToggle');
-  
-  if (energyToggle && energyToggle.checked) {
-    energyToggle.checked = false;
-    energyToggle.dispatchEvent(new Event('change'));
-  }
-  
-  if (runtimeToggle && runtimeToggle.checked) {
-    runtimeToggle.checked = false;
-    runtimeToggle.dispatchEvent(new Event('change'));
-  }
-}
-
 // --- LOADER FUNCTIONS ---
 function showLoader() {
   const loader = document.getElementById('loader');
-  if (loader) {
-    loader.style.display = 'flex';
-  }
+  if (loader) loader.style.display = 'flex';
 }
 
 function hideLoader() {
   const loader = document.getElementById('loader');
-  if (loader) {
-    loader.style.display = 'none';
-  }
+  if (loader) loader.style.display = 'none';
 }
 
 // --- MAIN DATA LOADING AND RENDERING ---
@@ -539,52 +456,12 @@ async function loadAndRenderData(selectedYear) {
   showLoader();
   
   try {
-    // Fetch all records for the selected year
     allRecords = await fetchKintoneAllData(selectedYear);
-    console.log(`Loaded ${allRecords.length} records for year ${selectedYear}`);
-    
-    // DEBUG: Log first record to see field structure
-    if (allRecords.length > 0) {
-      console.log('First record structure:', allRecords[0]);
-      console.log('Available fields:', Object.keys(allRecords[0]));
-      
-      // Check Plant_Location values
-      const plantValues = [...new Set(allRecords.map(r => r['Plant_Location']?.value).filter(v => v))];
-      console.log('Unique Plant_Location values:', plantValues);
-      
-      // Check date format
-      const dateValues = allRecords.slice(0, 3).map(r => r['Date_To']?.value);
-      console.log('Sample dates:', dateValues);
-      
-      // Check data field values
-      console.log('Sample field values from first record:');
-      Object.keys(DATA_CONFIG).forEach(key => {
-        const fieldName = DATA_CONFIG[key];
-        const value = allRecords[0][fieldName]?.value;
-        console.log(`  ${key} (${fieldName}):`, value);
-      });
-    }
-    
-    // Group records by plant and month
     const groupedData = groupRecordsByMonth(allRecords);
-    console.log('Grouped data:', groupedData);
     
-    // DEBUG: Log sample monthly totals
-    if (groupedData.GGPC && Object.keys(groupedData.GGPC).length > 0) {
-      const firstMonth = Object.keys(groupedData.GGPC)[0];
-      const monthRecords = groupedData.GGPC[firstMonth];
-      console.log(`GGPC ${firstMonth} records:`, monthRecords.length);
-      if (monthRecords.length > 0) {
-        const totals = calculateMonthlyTotals(monthRecords);
-        console.log(`GGPC ${firstMonth} totals:`, totals);
-      }
-    }
-    
-    // Render tables
     renderTable('ggpcTable', 'GGPC', groupedData, selectedYear);
     renderTable('cdpcTable', 'CDPC', groupedData, selectedYear);
     
-    // Render charts
     renderChart('ggpcEnergyChart', 'GGPC', groupedData, selectedYear);
     renderChart('cdpcEnergyChart', 'CDPC', groupedData, selectedYear);
     
@@ -597,28 +474,21 @@ async function loadAndRenderData(selectedYear) {
 
 // --- MAIN INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('DOM Content Loaded');
-  
-  // Setup components
   setupYearSelect();
   setupMobileNavigation();
   setupToggleButtons();
-  setupChartHeights();
+  setupDropdowns();
+  lucide.createIcons();
   
-  // Get initial year
   const yearSelect = document.getElementById('year-select');
   const selectedYear = yearSelect ? yearSelect.value : new Date().getFullYear().toString();
   
-  // Load initial data
   await loadAndRenderData(selectedYear);
   
-  // Setup year change listener
   if (yearSelect) {
     yearSelect.addEventListener('change', async () => {
       const newYear = yearSelect.value;
       await loadAndRenderData(newYear);
     });
   }
-  
-  console.log('Initialization complete');
 });

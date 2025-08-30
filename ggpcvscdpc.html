@@ -1,168 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard | GGPC vs CDPC</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="shortcut icon" href="images/gkg.ico" type="image/x-icon">
-  <link rel="stylesheet" href="style.css">
-      <!-- Swiper CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
-    <!-- Swiper JS -->
-    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-    
-</head>
-<body class="bg-gray-100 p-4">
-  <div id="loader" class="fixed inset-0 flex items-center justify-center bg-white z-50">
-    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
-  </div>
-  <div class="container mx-auto px-2 sm:px-4">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard | GGPC vs CDPC</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="shortcut icon" href="images/gkg.ico" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <nav class="bg-white shadow mb-4">
-  <div class="max-w-7xl mx-auto px-4">
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+  .custom-scroll::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+  }
+  .custom-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+  }
+  .custom-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+  .custom-scroll::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+  .rotate-180 { 
+      transform: rotate(180deg);
+  }
+</style>
+</head>
+<body class="bg-gray-100 font-sans">
+ 
+<div id="loader" class="fixed inset-0 flex items-center justify-center bg-white z-50">
+  <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+</div>
+
+<nav class="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-200">
+  <div class="mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16">
-      <!-- Left logo -->
-      <div class="flex-shrink-0">
-        <img src="images/GGPC logo.png" alt="Logo" class="h-12 w-auto">
+      <div class="flex items-center space-x-3 min-w-0">
+        <a href="#" class="flex-shrink-0">
+            <img src="images/GGPC logo.png" alt="Company Logo" class="h-10 sm:h-12 w-auto">
+        </a>
       </div>
-    
-    <!-- Hamburger button (mobile) -->
-      <div class="sm:hidden">
-        <button id="nav-toggle"
-                class="relative w-6 h-4 flex flex-col justify-between items-center focus:outline-none group"
-                aria-label="Open Menu">
-          <span class="block w-full h-0.5 bg-gray-700 transition-all duration-500"></span>
-          <span class="block w-full h-0.5 bg-gray-700 transition-all duration-500"></span>
-          <span class="block w-full h-0.5 bg-gray-700 transition-all duration-500"></span>
+
+      <div class="hidden lg:flex items-center space-x-2">
+        <a href="energy_vs_goods.html" class="font-semibold text-gray-600 px-3 py-2 rounded-md hover:bg-gray-100 hover:text-blue-600">Energy vs Goods</a>
+        <a href="vsruntime.html" class="font-semibold text-gray-600 px-3 py-2 rounded-md hover:bg-gray-100 hover:text-blue-600">Energy vs Runtime</a>
+        <a href="co2.html" class="font-semibold text-gray-600 px-3 py-2 rounded-md hover:bg-gray-100 hover:text-blue-600">CO₂ Emission</a>
+        <a href="ggpcvscdpc.html" class="font-semibold text-blue-600 px-3 py-2 rounded-md bg-blue-50">GGPC vs CDPC</a>
+      </div>
+
+      <div class="lg:hidden">
+        <button id="menu-btn" class="focus:outline-none p-2 rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-100">
+          <i data-lucide="menu" class="w-6 h-6"></i>
         </button>
       </div>
-
-      <!-- Right menu -->
-      <div id="nav-menu" class="hidden sm:flex space-x-6">
-        <a href="index.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
-          Energy vs Goods Produced
-        </a>
-        <a href="vsruntime.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
-          Energy  vs Actual Runtime
-        </a>
-         <!-- <a href="vsproductcost.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
-          Energy  vs Product Cost
-        </a> -->
-        <a href="co2.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
-          CO2 Emission
-        </a>
-        <a href="ggpcvscdpc.html" class="text-gray-700 hover:text-gray-900 text-xs sm:text-sm font-medium block py-2 sm:py-0">
-          GGPC vs CDPC
-        </a>
-         
-      </div>
     </div>
-    <!-- Mobile menu, show/hide based on menu state. -->
-    <div id="nav-mobile" class="sm:hidden hidden mt-2 transition-all duration-300 transform opacity-0 -translate-y-4">
-      <a href="index.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Energy vs Goods Produced</a>
-      <a href="vsruntime.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Energy  vs Actual Runtime</a>
-      <!-- <a href="vsproductcost.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">Energy  vs Product Cost</a> -->
-      <a href="co2.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">CO2 Emission</a>
-      <a href="ggpcvscdpc.html" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">GGPC vs CDPC</a>
+  </div>
+
+  <div id="mobile-menu" class="lg:hidden transition-all duration-300 ease-in-out max-h-0 overflow-hidden bg-white">
+    <div class="px-4 sm:px-6 pb-4 pt-2 border-t space-y-2">
+        <a href="energy_vs_goods.html" class="block font-semibold text-gray-600 py-2">Energy vs Goods</a>
+        <a href="vsruntime.html" class="block font-semibold text-gray-600 py-2">Energy vs Runtime</a>
+        <a href="co2.html" class="block font-semibold text-gray-600 py-2">CO₂ Emission</a>
+        <a href="ggpcvscdpc.html" class="block font-semibold text-blue-600 py-2">GGPC vs CDPC</a>
     </div>
   </div>
 </nav>
-<!-- Keep the original filters div as is -->
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
-  <h1 class="text-2xl font-bold text-center my-4">GGPC vs CDPC</h1>
-  <!-- Month/Year filters -->
-  <div class="flex gap-2">
-    <select id="year-select" class="border rounded p-1 px-4 mr-2"></select>
-  </div>
-</div>
 
-<!-- Centered table with horizontal scrolling -->
-<div class="flex justify-center">
-  <div class="overflow-x-auto">
-    <table id="vsTable" class="border border-black text-xs sm:text-sm">
-      <thead>
-        <tr>
-          <th rowspan="2" class="border border-black px-2 py-1">Month</th>
-          <th colspan="5" class="border border-black">GGPC</th>
-          <th colspan="5" class="border border-black">CDPC</th>
-        </tr>
-        <tr>
-          <th class="border border-black">Electricity</th>
-          <th class="border border-black">LPG</th>
-          <th class="border border-black">Gas</th>
-          <th class="border border-black">Diesel</th>
-          <th class="border border-black">Oil</th>
+<main class="p-4 sm:p-6 lg:p-8">
+  <div class="mx-auto">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+      <div>
+          <h1 class="text-2xl font-bold text-gray-800">GGPC vs. CDPC CO₂ Emissions</h1>
+          <p class="text-sm text-gray-500">A side-by-side comparison of CO₂ emissions by source.</p>
+      </div>
+      
+      <div class="flex items-center gap-3">
+          <label for="year-select" class="text-sm font-medium text-gray-700">Year:</label>
+          <div class="relative">
+              <select id="year-select" class="w-full sm:w-auto appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-white">
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500 transition-transform duration-300">
+                  <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+          </div>
+      </div>
+    </div>
 
-          <th class="border border-black">Electricity</th>
-          <th class="border border-black">LPG</th>
-          <th class="border border-black">Gas</th>
-          <th class="border border-black">Diesel</th>
-          <th class="border border-black">Oil</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Rows dynamically inserted by vs.js -->
-      </tbody>
-    </table>
-  </div>
-</div>
+    <div class="space-y-8">
+      <div>
+        <div class="flex items-center gap-3 mb-4">
+          <span class="text-sm font-semibold text-red-600 bg-red-100 px-2 py-1 rounded-full">GGPC vs. CDPC Data (t-CO₂)</span>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md overflow-x-auto custom-scroll">
+          <table id="vsTable" class="min-w-full text-xs border-collapse">
+            <thead class="bg-gray-50 text-[10px] uppercase">
+              <tr>
+                <th rowspan="2" class="px-2 py-2 border font-semibold">Month</th>
+                <th colspan="5" class="px-2 py-2 border bg-blue-50">GGPC</th>
+                <th colspan="5" class="px-2 py-2 border bg-yellow-50">CDPC</th>
+              </tr>
+              <tr class="font-semibold">
+                <th class="p-2 text-center border bg-blue-50">Electricity</th>
+                <th class="p-2 text-center border bg-blue-50">LPG</th>
+                <th class="p-2 text-center border bg-blue-50">Gas</th>
+                <th class="p-2 text-center border bg-blue-50">Diesel</th>
+                <th class="p-2 text-center border bg-blue-50">Oil</th>
+                <th class="p-2 text-center border bg-yellow-50">Electricity</th>
+                <th class="p-2 text-center border bg-yellow-50">LPG</th>
+                <th class="p-2 text-center border bg-yellow-50">Gas</th>
+                <th class="p-2 text-center border bg-yellow-50">Diesel</th>
+                <th class="p-2 text-center border bg-yellow-50">Oil</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-800 mb-3">Chart View Options</h3>
+        <div class="flex justify-center">
+          <div class="flex items-center gap-3 p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+            <input type="checkbox" id="stackToggle" class="w-5 h-5 accent-blue-600 rounded focus:ring-2 focus:ring-blue-500">
+            <label for="stackToggle" class="text-sm font-medium cursor-pointer select-none">
+              Show Detailed Breakdown by Source
+            </label>
+          </div>
+        </div>
+        <div class="mt-3 text-xs text-gray-500 text-center">
+          Toggle to switch between total emissions and a detailed source breakdown.
+        </div>
+      </div>
 
-<!-- Toggle button positioned after the table -->
-<div class="flex justify-center mt-4 mb-6">
-  <button id="toggle-combined-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors shadow-md">
-    Show Total
-  </button>
-</div>
-    <div class="swiper-container my-6">
-  <div class="swiper-wrapper">
-    <div class="swiper-slide">
-      <canvas id="janChart" style="height: 300px;"></canvas>
+      <div class="bg-white p-4 sm:p-6 shadow-md rounded-lg w-full">
+        <div class="relative h-[500px] w-full">
+          <canvas id="comparisonChart"></canvas>
+        </div>
+      </div>
     </div>
-    <div class="swiper-slide">
-      <canvas id="febChart" style="height: 300px;"></canvas>
-    </div>
-    <div class="swiper-slide">
-      <canvas id="marChart" style="height: 300px;"></canvas>
-    </div>
-    <div class="swiper-slide">
-      <canvas id="aprChart" style="height: 300px;"></canvas>
-    </div>
-    <div class="swiper-slide">
-      <canvas id="mayChart" style="height: 300px;"></canvas>
-    </div>
-    <div class="swiper-slide">
-      <canvas id="junChart" style="height: 300px;"></canvas>
-    </div>
-    <div class="swiper-slide">
-      <canvas id="julChart" style="height: 300px;"></canvas>
-    </div>
-    <div class="swiper-slide">
-      <canvas id="augChart" style="height: 300px;"></canvas>
-    </div>
-    <div class="swiper-slide">
-      <canvas id="sepChart" style="height: 300px;"></canvas>
-    </div>
-    <div class="swiper-slide">
-      <canvas id="octChart" style="height: 300px;"></canvas>
-    </div>
-    <div class="swiper-slide">
-      <canvas id="novChart" style="height: 300px;"></canvas>
-    </div>
-    <div class="swiper-slide">
-      <canvas id="decChart" style="height: 300px;"></canvas>
-    </div>
-    
   </div>
-  <!-- Pagination directly after swiper-wrapper, with spacing -->
-  <div class="swiper-pagination mt-4"></div>
-</div>
-</div>
-  </div>
-  
-<!-- Your script LAST -->
+</main>
+
 <script src="vs.js"></script>
-
 </body>
 </html>
