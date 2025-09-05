@@ -48,30 +48,47 @@
     .toggle-checkbox:checked + .toggle-label {
         background-color: #60a5fa; /* blue-400 */
     }
+    /* Highlighted table row */
+    #ggpcTable tbody tr, #cdpcTable tbody tr {
+        transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    }
+    .highlight-row {
+      background-color: #eff6ff !important; /* blue-50 */
+      color: #1e3a8a; /* blue-900 */
+      font-weight: 600;
+      border-left: 3px solid #3b82f6;
+    }
+     /* Loading Spinner */
+    .loader {
+      border: 5px solid #f3f3f3; /* Light grey */
+      border-top: 5px solid #3b82f6; /* Blue */
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body class="bg-gray-100 font-sans">
 
-<!-- Navigation -->
 <nav class="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-200">
   <div class="mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16">
-      <!-- Logo and Title -->
       <div class="flex items-center space-x-3 min-w-0">
         <a href="#" class="flex-shrink-0">
             <img src="images/GGPC logo.png" alt="Company Logo" class="h-10 sm:h-12 w-auto">
         </a>
       </div>
-
-      <!-- Desktop Navigation -->
-       <div class="hidden lg:flex items-center space-x-2">
+      <div class="hidden lg:flex items-center space-x-2">
         <a href="energy_vs_goods.html" class="font-semibold text-blue-600 px-3 py-2 rounded-md bg-blue-50">Energy vs Goods</a>
         <a href="vsruntime.html" class="font-semibold text-gray-600 px-3 py-2 rounded-md hover:bg-gray-100 hover:text-blue-600">Energy vs Runtime</a>
         <a href="co2.html" class="font-semibold text-gray-600 px-3 py-2 rounded-md hover:bg-gray-100 hover:text-blue-600">CO2 Emission</a>
         <a href="ggpcvscdpc.html" class="font-semibold text-gray-600 px-3 py-2 rounded-md hover:bg-gray-100 hover:text-blue-600">GGPC vs CDPC</a>
       </div>
-
-      <!-- Mobile menu button -->
       <div class="lg:hidden">
         <button id="menu-btn" class="focus:outline-none p-2 rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-100">
           <i data-lucide="menu" class="w-6 h-6"></i>
@@ -79,8 +96,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Mobile Navigation -->
   <div id="mobile-menu" class="lg:hidden transition-all duration-300 ease-in-out max-h-0 overflow-hidden bg-white">
     <div class="px-4 sm:px-6 pb-4 pt-2 border-t space-y-2">
         <a href="energy_vs_goods.html" class="block font-semibold text-blue-600 py-2">Energy vs Goods</a>
@@ -91,25 +106,31 @@
   </div>
 </nav>
 
-<!-- Main Content -->
 <main class="p-4 sm:p-6 lg:p-8">
   <div class="mx-auto">
-      
-      <!-- Header Section -->
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <!-- Title -->
+
+    <div id="loading-state" class="fixed inset-0 bg-white bg-opacity-75 flex flex-col justify-center items-center z-[100]">
+        <div class="loader"></div>
+        <p class="mt-4 text-gray-600 font-semibold">Loading Dashboard Data...</p>
+    </div>
+    <div id="error-state" class="hidden fixed inset-0 bg-gray-100 flex flex-col justify-center items-center z-[99]">
+        <div class="text-center p-8 bg-white rounded-lg shadow-lg">
+            <i data-lucide="alert-triangle" class="w-16 h-16 text-red-500 mx-auto"></i>
+            <h2 class="mt-4 text-2xl font-bold text-gray-800">Failed to Load Data</h2>
+            <p class="mt-2 text-gray-600">There was an error fetching the required data. Please try again later.</p>
+        </div>
+    </div>
+    
+    <div id="main-content" class="invisible"> <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
             <h1 class="text-2xl font-bold text-gray-800">Energy vs Goods Produced</h1>
             <p class="text-sm text-gray-500">Analysis of energy consumption against production output.</p>
         </div>
-        
-        <!-- Controls Section -->
         <div class="flex items-center gap-3">
             <label for="year-select" class="text-sm font-medium text-gray-700">Year:</label>
             <div class="relative">
                 <select id="year-select" class="w-full sm:w-auto appearance-none border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-white">
-                  <!-- dynamically populated -->
-                </select>
+                  </select>
                 <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500 transition-transform duration-300">
                     <i data-lucide="chevron-down" class="w-4 h-4"></i>
                 </div>
@@ -118,10 +139,45 @@
       </div>
 
     <div class="space-y-8">
-        <!-- GGPC Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <h3 class="font-bold text-gray-700 mb-3">GGPC - Annual Summary</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase">Goods Produced</p>
+                        <p id="ggpc-kpi-goods" class="text-lg font-bold text-blue-600">0 Kg</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase">Total Energy</p>
+                        <p id="ggpc-kpi-energy" class="text-lg font-bold text-orange-600">0 KWh</p>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                        <p class="text-xs text-gray-500 uppercase">Avg. Energy Intensity</p>
+                        <p id="ggpc-kpi-intensity" class="text-lg font-bold text-teal-600">0 KWh/Kg</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <h3 class="font-bold text-gray-700 mb-3">CDPC - Annual Summary</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase">Goods Produced</p>
+                        <p id="cdpc-kpi-goods" class="text-lg font-bold text-blue-600">0 Kg</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase">Total Energy</p>
+                        <p id="cdpc-kpi-energy" class="text-lg font-bold text-orange-600">0 KWh</p>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                        <p class="text-xs text-gray-500 uppercase">Avg. Energy Intensity</p>
+                        <p id="cdpc-kpi-intensity" class="text-lg font-bold text-teal-600">0 KWh/Kg</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div>
             <div class="flex items-center gap-3 mb-4">
-                <!-- <h2 class="text-xl font-bold text-gray-700">GGPC Data</h2> -->
                 <span class="text-sm font-semibold text-red-600 bg-red-100 px-2 py-1 rounded-full">GGPC Data</span>
             </div>
             <div class="bg-white p-4 rounded-lg shadow-md overflow-x-auto custom-scroll">
@@ -166,10 +222,8 @@
             </div>
         </div>
 
-        <!-- CDPC Section -->
         <div>
              <div class="flex items-center gap-3 mb-4">
-                <!-- <h2 class="text-xl font-bold text-gray-700">CDPC Data</h2> -->
                 <span class="text-sm font-semibold text-red-600 bg-red-100 px-2 py-1 rounded-full">CDPC Data</span>
             </div>
             <div class="bg-white p-4 rounded-lg shadow-md overflow-x-auto custom-scroll">
@@ -214,21 +268,45 @@
             </div>
         </div>
         
-        <!-- Chart Section -->
+        <div class="flex justify-end items-center gap-3 bg-white p-3 rounded-lg shadow-md">
+            <label for="stackToggle" class="text-sm font-medium text-gray-700">Stack Energy Data</label>
+            <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
+                <input type="checkbox" id="stackToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out"/>
+                <label for="stackToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-200 ease-in-out"></label>
+            </div>
+        </div>
+
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-gray-800">Energy Consumption Charts</h2>
-                 <div class="flex items-center gap-3 mt-4 md:mt-0">
-                    <label for="stackToggle" class="text-sm font-medium text-gray-700">Stack Energy Data</label>
-                    <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                        <input type="checkbox" id="stackToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out"/>
-                        <label for="stackToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-200 ease-in-out"></label>
-                    </div>
-                 </div>
+            <div class="mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Energy vs. Goods Produced</h2>
+                <p class="text-sm text-gray-500">The default chart view showing energy consumption against production.</p>
             </div>
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                <div class="chart-container"><canvas id="ggpcEnergyChart"></canvas></div>
-                <div class="chart-container"><canvas id="cdpcEnergyChart"></canvas></div>
+                <div class="chart-container"><canvas id="ggpcOriginalChart"></canvas></div>
+                <div class="chart-container"><canvas id="cdpcOriginalChart"></canvas></div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Customizable Charts</h2>
+                 <p class="text-sm text-gray-500">Use the dropdowns to compare different metrics. Click a data point to highlight the table row.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 border-t pt-4">
+                <div>
+                    <label for="lineMetricSelect" class="block text-sm font-medium text-gray-700 mb-1">Line Metric (Left Axis)</label>
+                    <select id="lineMetricSelect" class="w-full appearance-none border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-white"></select>
+                </div>
+                <div>
+                    <label for="barMetricSelect" class="block text-sm font-medium text-gray-700 mb-1">Bar Metric (Right Axis)</label>
+                    <select id="barMetricSelect" class="w-full appearance-none border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-white"></select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <div class="chart-container"><canvas id="ggpcCustomChart"></canvas></div>
+                <div class="chart-container"><canvas id="cdpcCustomChart"></canvas></div>
             </div>
         </div>
     </div>
@@ -237,17 +315,64 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
+    // --- UI ELEMENTS ---
+    const loadingState = document.getElementById('loading-state');
+    const errorState = document.getElementById('error-state');
+    const mainContent = document.getElementById('main-content');
+    
+    // --- MAPPERS & CONSTANTS ---
+    const METRIC_OPTIONS = {
+        // Raw Materials
+        'inggotUsedKg': { label: 'Ingot Used (Kg)', unit: 'Kg', color: '#475569' },
+        'inggotUsedPcs': { label: 'Ingot Used (Pcs)', unit: 'Pcs', color: '#94A3B8' },
+        'lpgKg': { label: 'LPG (Kg)', unit: 'Kg', color: '#F97316' },
+        
+        // Production Output
+        'goodsProducedKg': { label: 'Goods Produced (Kg)', unit: 'Kg', color: '#3B82F6' },
+        
+        // Energy Consumption
+        'energyTotalKWh': { label: 'Total Energy (KWh)', unit: 'KWh', color: '#F59E0B' },
+        'electricityKWh': { label: 'Electricity (KWh)', unit: 'KWh', color: '#FBBF24' },
+        'lpgKWh': { label: 'LPG (KWh)', unit: 'KWh', color: '#6B7280' },
+
+        // Fuel & Oil Consumption
+        'gasolineLiters': { label: 'Gasoline (Liters)', unit: 'Liters', color: '#a855f7' },
+        'dieselLiters': { label: 'Diesel (Liters)', unit: 'Liters', color: '#7e22ce' },
+        'tellus46': { label: 'Oil: Tellus 46 (L)', unit: 'Liters', color: '#ca8a04' },
+        'tellus32': { label: 'Oil: Tellus 32 (L)', unit: 'Liters', color: '#eab308' },
+        'ep220': { label: 'Oil: EP-220 (L)', unit: 'Liters', color: '#f59e0b' },
+        'pl1000': { label: 'Oil: PL-1000 (L)', unit: 'Liters', color: '#fcd34d' },
+
+        // CO2 Emissions
+        'operationsEquivalent': { label: 'Total CO2 (t-CO2)', unit: 't-CO2', color: '#EF4444' },
+        'electricityCO2': { label: 'Electricity CO2', unit: 'CO2', color: '#f87171' },
+        'lpgCO2': { label: 'LPG CO2', unit: 'CO2', color: '#fb923c' },
+        'gasCO2': { label: 'Gasoline CO2', unit: 'CO2', color: '#c084fc' },
+        'dieselCO2': { label: 'Diesel CO2', unit: 'CO2', color: '#a78bfa' },
+        'oilCO2': { label: 'Oil CO2', unit: 'CO2', color: '#facc15' },
+
+        // Efficiency Ratios
+        'energyIntensity': { label: 'Energy Intensity (KWh/Kg)', unit: 'KWh/Kg', color: '#10B981' },
+        'co2IntensityKg': { label: 'CO2 Intensity (CO2/Kg)', unit: 'CO2/Kg', color: '#8B5CF6' },
+        'co2IntensityPc': { label: 'CO2 Intensity (CO2/pc)', unit: 'CO2/pc', color: '#a78bfa' }
+    };
+
+    // --- STATE MANAGEMENT ---
+    let highlightedRowIndices = { ggpcTable: null, cdpcTable: null };
+
     // --- UTILITY FUNCTIONS ---
     function mapRecord(r) {
+      const electricityKWh = parseFloat(r.Electricity_KWhr?.value || 0);
+      const lpgKWh = parseFloat(r.LPG_KWhr?.value || 0);
       return {
         dateFrom: r.Date_To?.value || '',
         inggotUsedPcs: parseFloat(r.Inggot_used_pcs?.value || 0),
         inggotUsedKg: parseFloat(r.Inggot_Used_Kg?.value || 0),
         goodsProducedKg: parseFloat(r.Goods_Produced_Kg?.value || 0),
-        electricityKWh: parseFloat(r.Electricity_KWhr?.value || 0),
+        electricityKWh: electricityKWh,
         electricityCO2: parseFloat(r.Electricity_CO2?.value || 0),
         lpgKg: parseFloat(r.LPG_Total_Kg?.value || 0),
-        lpgKWh: parseFloat(r.LPG_KWhr?.value || 0),
+        lpgKWh: lpgKWh,
         lpgCO2: parseFloat(r.lpg_co2?.value || 0),
         gasolineLiters: parseFloat(r.Gasoline_Liters?.value || 0),
         gasCO2: parseFloat(r.Gas_CO2?.value || 0),
@@ -261,7 +386,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         energyIntensity: parseFloat(r.Energy_Intensity?.value || 0),
         operationsEquivalent: parseFloat(r.Operations_equivalent?.value || 0),
         co2IntensityPc: parseFloat(r.CO2_Intensity_pc?.value || 0),
-        co2IntensityKg: parseFloat(r.CO2_Intensity_kg?.value || 0)
+        co2IntensityKg: parseFloat(r.CO2_Intensity_kg?.value || 0),
+        energyTotalKWh: electricityKWh + lpgKWh // Derived metric
       };
     }
 
@@ -276,20 +402,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       const date = new Date(dateString);
       return date.toLocaleString('en-US', { month: 'short' }).toUpperCase();
     }
+    
+    function formatNumber(num, digits = 2) {
+        if (typeof num !== 'number' || isNaN(num)) return '0';
+        return Number.isInteger(num) ? num.toLocaleString('en-US') : num.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    }
 
     function renderTableRows(tableId, data) {
       const tbody = document.querySelector(`#${tableId} tbody`);
       tbody.innerHTML = ''; 
       data.forEach((row, rowIndex) => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50';
         row.forEach((cell, cellIndex) => {
           const td = document.createElement('td');
-          if (typeof cell === 'number' && !isNaN(cell)) {
-            td.textContent = Number.isInteger(cell) ? cell.toLocaleString('en-US') : cell.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-          } else {
-            td.textContent = cell;
-          }
+          td.textContent = typeof cell === 'number' ? formatNumber(cell) : cell;
           td.className = 'px-2 py-1 border text-center';
           if (cellIndex === 0) td.classList.add('font-semibold', 'bg-gray-50');
           tr.appendChild(td);
@@ -297,36 +423,101 @@ document.addEventListener('DOMContentLoaded', async () => {
         tbody.appendChild(tr);
       });
     }
+    
+    function updateKpiCards(ggpcData, cdpcData) {
+        const calculateTotals = (data) => {
+            return data.reduce((acc, record) => {
+                acc.goods += record.goodsProducedKg;
+                acc.energy += record.energyTotalKWh;
+                return acc;
+            }, { goods: 0, energy: 0 });
+        };
+        
+        const ggpcTotals = calculateTotals(ggpcData);
+        const cdpcTotals = calculateTotals(cdpcData);
+        
+        const ggpcIntensity = ggpcTotals.goods > 0 ? (ggpcTotals.energy / ggpcTotals.goods) : 0;
+        const cdpcIntensity = cdpcTotals.goods > 0 ? (cdpcTotals.energy / cdpcTotals.goods) : 0;
+        
+        document.getElementById('ggpc-kpi-goods').textContent = `${formatNumber(ggpcTotals.goods, 0)} Kg`;
+        document.getElementById('ggpc-kpi-energy').textContent = `${formatNumber(ggpcTotals.energy, 0)} KWh`;
+        document.getElementById('ggpc-kpi-intensity').textContent = `${formatNumber(ggpcIntensity)} KWh/Kg`;
+        
+        document.getElementById('cdpc-kpi-goods').textContent = `${formatNumber(cdpcTotals.goods, 0)} Kg`;
+        document.getElementById('cdpc-kpi-energy').textContent = `${formatNumber(cdpcTotals.energy, 0)} KWh`;
+        document.getElementById('cdpc-kpi-intensity').textContent = `${formatNumber(cdpcIntensity)} KWh/Kg`;
+    }
+    
+    const chartClickHandler = (tableId) => (event, elements) => {
+        if (elements.length > 0) {
+            const index = elements[0].index;
+            const table = document.getElementById(tableId);
+            const rows = table.querySelectorAll('tbody tr');
 
-    function createEnergyChart(ctx, title, goodsProducedKg, electricityKWh, lpgKWh, stacked = false) {
+            // If clicking the same point again, toggle off
+            if (index === highlightedRowIndices[tableId]) {
+                rows[index].classList.remove('highlight-row');
+                highlightedRowIndices[tableId] = null;
+                return;
+            }
+
+            // Remove previous highlight and set new one
+            rows.forEach(row => row.classList.remove('highlight-row'));
+            if (rows[index]) {
+                rows[index].classList.add('highlight-row');
+                highlightedRowIndices[tableId] = index;
+            }
+        }
+    };
+
+    function createOriginalChart(ctx, title, goodsData, electricityData, lpgData, stacked = false, tableId) {
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        return new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [
+                    { label: 'Goods Produced (Kg)', data: goodsData, type: 'line', borderColor: '#3B82F6', backgroundColor: '#3B82F6', yAxisID: 'y', tension: 0.1, fill: false, pointStyle: 'circle', pointRadius: 5, pointBackgroundColor: '#3B82F6' },
+                    { label: 'Electricity KWh', data: electricityData, backgroundColor: '#F97316', yAxisID: 'y1', barPercentage: 0.7, categoryPercentage: 0.6, stack: stacked ? 'energy' : undefined },
+                    { label: 'LPG KWh', data: lpgData, backgroundColor: '#6B7280', yAxisID: 'y1', barPercentage: 0.7, categoryPercentage: 0.6, stack: stacked ? 'energy' : undefined }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                onClick: chartClickHandler(tableId),
+                scales: {
+                    y: { type: 'linear', position: 'left', title: { display: true, text: 'Kilograms' }, ticks: { callback: value => value.toLocaleString() }, min: 0 },
+                    y1: { type: 'linear', position: 'right', title: { display: true, text: 'KWh' }, grid: { drawOnChartArea: false }, ticks: { callback: value => value.toLocaleString() }, min: 0, stacked: stacked }
+                },
+                plugins: { legend: { position: 'bottom' }, title: { display: true, text: title, font: { size: 16, weight: 'bold' } } }
+            }
+        });
+    }
+
+    function createCustomChart(ctx, title, lineMetric, barMetric, lineData, barData, stacked = false, tableId) {
       const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+      const lineConfig = METRIC_OPTIONS[lineMetric];
+      const barConfig = METRIC_OPTIONS[barMetric];
+
       return new Chart(ctx, {
         type: 'bar',
         data: {
           labels: months,
           datasets: [
-            {
-              label: 'Goods Produced (Kg)', data: goodsProducedKg, type: 'line', borderColor: '#3B82F6', backgroundColor: '#3B82F6', yAxisID: 'y', tension: 0.1, fill: false, pointStyle: 'circle', pointRadius: 5, pointBackgroundColor: '#3B82F6'
-            },
-            {
-              label: 'Electricity KWh', data: electricityKWh, backgroundColor: '#F97316', yAxisID: 'y1', barPercentage: 0.7, categoryPercentage: 0.6, stack: stacked ? 'energy' : undefined
-            },
-            {
-              label: 'LPG KWh', data: lpgKWh, backgroundColor: '#6B7280', yAxisID: 'y1', barPercentage: 0.7, categoryPercentage: 0.6, stack: stacked ? 'energy' : undefined
-            }
+            { label: lineConfig.label, data: lineData, type: 'line', borderColor: lineConfig.color, backgroundColor: lineConfig.color, yAxisID: 'y', tension: 0.1, fill: false, pointStyle: 'circle', pointRadius: 5, pointBackgroundColor: lineConfig.color },
+            { label: barConfig.label, data: barData, backgroundColor: barConfig.color, yAxisID: 'y1', barPercentage: 0.7, categoryPercentage: 0.6, stack: stacked ? 'energy' : undefined }
           ]
         },
         options: {
           responsive: true, maintainAspectRatio: false,
           interaction: { mode: 'index', intersect: false },
+          onClick: chartClickHandler(tableId),
           scales: {
-            y: { type: 'linear', position: 'left', title: { display: true, text: 'Kilograms' }, ticks: { callback: value => value.toLocaleString() }, min: 0 },
-            y1: { type: 'linear', position: 'right', title: { display: true, text: 'KWh' }, grid: { drawOnChartArea: false }, ticks: { callback: value => value.toLocaleString() }, min: 0, stacked: stacked }
+            y: { type: 'linear', position: 'left', title: { display: true, text: lineConfig.unit }, ticks: { callback: value => value.toLocaleString() }, min: 0 },
+            y1: { type: 'linear', position: 'right', title: { display: true, text: barConfig.unit }, grid: { drawOnChartArea: false }, ticks: { callback: value => value.toLocaleString() }, min: 0, stacked: stacked }
           },
-          plugins: {
-            legend: { position: 'bottom' },
-            title: { display: true, text: title, font: { size: 16, weight: 'bold' } }
-          }
+          plugins: { legend: { position: 'bottom' }, title: { display: true, text: title, font: { size: 16, weight: 'bold' } } }
         }
       });
     }
@@ -336,63 +527,100 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // --- MAIN DASHBOARD LOGIC ---
-    let ggpcChart, cdpcChart;
-    const kintoneData = await fetchKintoneData('/.netlify/functions/kintone');
-    const ggpcRecords = kintoneData.records.filter(r => r.Plant_Location.value === 'GGPC').map(mapRecord).sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
-    const cdpcRecords = kintoneData.records.filter(r => r.Plant_Location.value === 'CDPC').map(mapRecord).sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
+    try {
+        let ggpcOriginalChart, cdpcOriginalChart, ggpcCustomChart, cdpcCustomChart;
+        const kintoneData = await fetchKintoneData('/.netlify/functions/kintone');
+        const ggpcRecords = kintoneData.records.filter(r => r.Plant_Location.value === 'GGPC').map(mapRecord).sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
+        const cdpcRecords = kintoneData.records.filter(r => r.Plant_Location.value === 'CDPC').map(mapRecord).sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
 
-    const yearSelect = document.getElementById('year-select');
-    const allYears = Array.from(new Set([...ggpcRecords, ...cdpcRecords].map(r => new Date(r.dateFrom).getFullYear()))).sort((a, b) => b - a);
-    
-    yearSelect.innerHTML = '';
-    allYears.forEach(year => {
-        const opt = document.createElement('option');
-        opt.value = year;
-        opt.textContent = year;
-        yearSelect.appendChild(opt);
-    });
+        const yearSelect = document.getElementById('year-select');
+        const allYears = Array.from(new Set([...ggpcRecords, ...cdpcRecords].map(r => new Date(r.dateFrom).getFullYear()))).sort((a, b) => b - a);
+        
+        allYears.forEach(year => {
+            const opt = document.createElement('option');
+            opt.value = year;
+            opt.textContent = year;
+            yearSelect.appendChild(opt);
+        });
 
-    function updateDashboard(selectedYear) {
-      const filteredGGPC = filterByYear(ggpcRecords, selectedYear);
-      const filteredCDPC = filterByYear(cdpcRecords, selectedYear);
-      
-      const ggpcTableData = filteredGGPC.map(r => [formatDateToMonth(r.dateFrom), r.inggotUsedPcs, r.inggotUsedKg, r.goodsProducedKg, r.electricityKWh, r.electricityCO2, r.lpgKg, r.lpgKWh, r.lpgCO2, r.gasolineLiters, r.gasCO2, r.dieselLiters, r.dieselCO2, r.tellus46, r.tellus32, r.ep220, r.pl1000, r.oilCO2, r.energyIntensity, r.operationsEquivalent, r.co2IntensityPc, r.co2IntensityKg]);
-      renderTableRows('ggpcTable', ggpcTableData);
-      
-      const cdpcTableData = filteredCDPC.map(r => [formatDateToMonth(r.dateFrom), r.inggotUsedPcs, r.inggotUsedKg, r.goodsProducedKg, r.electricityKWh, r.electricityCO2, r.lpgKg, r.lpgKWh, r.lpgCO2, r.gasolineLiters, r.gasCO2, r.dieselLiters, r.dieselCO2, r.tellus46, r.tellus32, r.ep220, r.pl1000, r.oilCO2, r.energyIntensity, r.operationsEquivalent, r.co2IntensityPc, r.co2IntensityKg]);
-      renderTableRows('cdpcTable', cdpcTableData);
+        // Populate metric selectors
+        const lineMetricSelect = document.getElementById('lineMetricSelect');
+        const barMetricSelect = document.getElementById('barMetricSelect');
+        Object.entries(METRIC_OPTIONS).forEach(([key, { label }]) => {
+            lineMetricSelect.innerHTML += `<option value="${key}">${label}</option>`;
+            barMetricSelect.innerHTML += `<option value="${key}">${label}</option>`;
+        });
+        lineMetricSelect.value = 'goodsProducedKg';
+        barMetricSelect.value = 'energyTotalKWh';
 
-      if (ggpcChart) ggpcChart.destroy();
-      if (cdpcChart) cdpcChart.destroy();
-      
-      ggpcChart = createEnergyChart(document.getElementById('ggpcEnergyChart').getContext('2d'), 'GGPC ENERGY CONSUMPTION VS GOODS PRODUCED', filteredGGPC.map(r => r.goodsProducedKg), filteredGGPC.map(r => r.electricityKWh), filteredGGPC.map(r => r.lpgKWh), document.getElementById('stackToggle').checked);
-      cdpcChart = createEnergyChart(document.getElementById('cdpcEnergyChart').getContext('2d'), 'CDPC ENERGY CONSUMPTION VS GOODS PRODUCED', filteredCDPC.map(r => r.goodsProducedKg), filteredCDPC.map(r => r.electricityKWh), filteredCDPC.map(r => r.lpgKWh), document.getElementById('stackToggle').checked);
-    }
-    
-    document.getElementById('stackToggle').addEventListener('change', () => updateDashboard(yearSelect.value));
-    yearSelect.addEventListener('change', (e) => updateDashboard(e.target.value));
+        function updateDashboard(selectedYear) {
+          const filteredGGPC = filterByYear(ggpcRecords, selectedYear);
+          const filteredCDPC = filterByYear(cdpcRecords, selectedYear);
+          
+          updateKpiCards(filteredGGPC, filteredCDPC);
 
-    // Mobile Menu
-    const menuBtn = document.getElementById('menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    menuBtn.addEventListener('click', () => {
-        const isClosed = mobileMenu.style.maxHeight === '' || mobileMenu.style.maxHeight === '0px';
-        mobileMenu.style.maxHeight = isClosed ? mobileMenu.scrollHeight + "px" : '0px';
-    });
-    
-    // Dropdown icon animation
-    document.querySelectorAll("select").forEach(select => {
-        const iconWrapper = select.nextElementSibling;
-        if (iconWrapper) {
-            select.addEventListener("focus", () => iconWrapper.classList.add("rotate-180"));
-            select.addEventListener("blur", () => iconWrapper.classList.remove("rotate-180"));
+          renderTableRows('ggpcTable', filteredGGPC.map(r => [formatDateToMonth(r.dateFrom), r.inggotUsedPcs, r.inggotUsedKg, r.goodsProducedKg, r.electricityKWh, r.electricityCO2, r.lpgKg, r.lpgKWh, r.lpgCO2, r.gasolineLiters, r.gasCO2, r.dieselLiters, r.dieselCO2, r.tellus46, r.tellus32, r.ep220, r.pl1000, r.oilCO2, r.energyIntensity, r.operationsEquivalent, r.co2IntensityPc, r.co2IntensityKg]));
+          renderTableRows('cdpcTable', filteredCDPC.map(r => [formatDateToMonth(r.dateFrom), r.inggotUsedPcs, r.inggotUsedKg, r.goodsProducedKg, r.electricityKWh, r.electricityCO2, r.lpgKg, r.lpgKWh, r.lpgCO2, r.gasolineLiters, r.gasCO2, r.dieselLiters, r.dieselCO2, r.tellus46, r.tellus32, r.ep220, r.pl1000, r.oilCO2, r.energyIntensity, r.operationsEquivalent, r.co2IntensityPc, r.co2IntensityKg]));
+          
+          // Reset highlights on data change
+          highlightedRowIndices = { ggpcTable: null, cdpcTable: null };
+
+          // Destroy old charts
+          if (ggpcOriginalChart) ggpcOriginalChart.destroy();
+          if (cdpcOriginalChart) cdpcOriginalChart.destroy();
+          if (ggpcCustomChart) ggpcCustomChart.destroy();
+          if (cdpcCustomChart) cdpcCustomChart.destroy();
+          
+          const stacked = document.getElementById('stackToggle').checked;
+
+          // Create Original Charts
+          ggpcOriginalChart = createOriginalChart(document.getElementById('ggpcOriginalChart').getContext('2d'), 'GGPC ENERGY CONSUMPTION', filteredGGPC.map(r => r.goodsProducedKg), filteredGGPC.map(r => r.electricityKWh), filteredGGPC.map(r => r.lpgKWh), stacked, 'ggpcTable');
+          cdpcOriginalChart = createOriginalChart(document.getElementById('cdpcOriginalChart').getContext('2d'), 'CDPC ENERGY CONSUMPTION', filteredCDPC.map(r => r.goodsProducedKg), filteredCDPC.map(r => r.electricityKWh), filteredCDPC.map(r => r.lpgKWh), stacked, 'cdpcTable');
+
+          // Create Custom Charts
+          const lineMetric = lineMetricSelect.value;
+          const barMetric = barMetricSelect.value;
+          ggpcCustomChart = createCustomChart(document.getElementById('ggpcCustomChart').getContext('2d'), 'GGPC CUSTOM DATA', lineMetric, barMetric, filteredGGPC.map(r => r[lineMetric]), filteredGGPC.map(r => r[barMetric]), false, 'ggpcTable');
+          cdpcCustomChart = createCustomChart(document.getElementById('cdpcCustomChart').getContext('2d'), 'CDPC CUSTOM DATA', lineMetric, barMetric, filteredCDPC.map(r => r[lineMetric]), filteredCDPC.map(r => r[barMetric]), false, 'cdpcTable');
         }
-    });
+        
+        // Event Listeners
+        document.getElementById('stackToggle').addEventListener('change', () => updateDashboard(yearSelect.value));
+        yearSelect.addEventListener('change', (e) => updateDashboard(e.target.value));
+        lineMetricSelect.addEventListener('change', () => updateDashboard(yearSelect.value));
+        barMetricSelect.addEventListener('change', () => updateDashboard(yearSelect.value));
 
-    lucide.createIcons();
-    updateDashboard(allYears[0]);
+        // Mobile Menu
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuBtn.addEventListener('click', () => {
+            const isClosed = mobileMenu.style.maxHeight === '' || mobileMenu.style.maxHeight === '0px';
+            mobileMenu.style.maxHeight = isClosed ? mobileMenu.scrollHeight + "px" : '0px';
+        });
+        
+        // Dropdown icon animation
+        document.querySelectorAll("select").forEach(select => {
+            const iconWrapper = select.nextElementSibling;
+            if (iconWrapper) {
+                select.addEventListener("focus", () => iconWrapper.classList.add("rotate-180"));
+                select.addEventListener("blur", () => iconWrapper.classList.remove("rotate-180"));
+            }
+        });
+
+        lucide.createIcons();
+        updateDashboard(allYears[0]);
+
+        // Hide loader, show content
+        loadingState.style.display = 'none';
+        mainContent.classList.remove('invisible');
+
+    } catch (error) {
+        console.error("Dashboard Error:", error);
+        loadingState.style.display = 'none';
+        errorState.classList.remove('hidden');
+        lucide.createIcons(); // Still render icons on error page
+    }
 });
 </script>
 </body>
 </html>
-

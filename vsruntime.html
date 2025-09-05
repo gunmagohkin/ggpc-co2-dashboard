@@ -16,23 +16,34 @@
   body {
     font-family: 'Inter', sans-serif;
   }
-  .custom-scroll::-webkit-scrollbar {
-    height: 8px;
-    width: 8px;
+  .custom-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
+  .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+  .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  .rotate-180 { transform: rotate(180deg); }
+  /* Custom Radio Button Styles */
+  .radio-label {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
   }
-  .custom-scroll::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 4px;
+  .radio-label:has(input:checked) {
+    background-color: #eff6ff;
+    border-color: #3b82f6;
+    color: #1e40af;
+    font-weight: 600;
   }
-  .custom-scroll::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
+  /* Highlighted table row */
+  #ggpcTable tbody tr, #cdpcTable tbody tr {
+      transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
   }
-  .custom-scroll::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-  }
-  .rotate-180 { 
-      transform: rotate(180deg);
+  .highlight-row {
+    background-color: #eff6ff !important; /* blue-50 */
+    color: #1e3a8a; /* blue-900 */
+    font-weight: 600;
+    border-left: 3px solid #3b82f6;
   }
 </style>
 </head>
@@ -97,6 +108,43 @@
     </div>
 
     <div class="space-y-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white p-4 rounded-lg shadow-md">
+              <h3 class="font-bold text-gray-700 mb-3">GGPC - Annual Summary</h3>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
+                  <div>
+                      <p class="text-xs text-gray-500 uppercase">Total Energy</p>
+                      <p id="ggpc-kpi-energy" class="text-lg font-bold text-orange-600">0 KWh</p>
+                  </div>
+                  <div>
+                      <p class="text-xs text-gray-500 uppercase">Total Runtime</p>
+                      <p id="ggpc-kpi-runtime" class="text-lg font-bold text-purple-600">0 Hrs</p>
+                  </div>
+                  <div class="col-span-2 sm:col-span-1">
+                      <p class="text-xs text-gray-500 uppercase">Energy / Runtime</p>
+                      <p id="ggpc-kpi-efficiency" class="text-lg font-bold text-teal-600">0 KWh/hr</p>
+                  </div>
+              </div>
+          </div>
+          <div class="bg-white p-4 rounded-lg shadow-md">
+              <h3 class="font-bold text-gray-700 mb-3">CDPC - Annual Summary</h3>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
+                <div>
+                  <p class="text-xs text-gray-500 uppercase">Total Energy</p>
+                  <p id="cdpc-kpi-energy" class="text-lg font-bold text-orange-600">0 KWh</p>
+              </div>
+              <div>
+                  <p class="text-xs text-gray-500 uppercase">Total Runtime</p>
+                  <p id="cdpc-kpi-runtime" class="text-lg font-bold text-purple-600">0 Hrs</p>
+              </div>
+              <div class="col-span-2 sm:col-span-1">
+                  <p class="text-xs text-gray-500 uppercase">Energy / Runtime</p>
+                  <p id="cdpc-kpi-efficiency" class="text-lg font-bold text-teal-600">0 KWh/hr</p>
+              </div>
+              </div>
+          </div>
+      </div>
+
       <div>
         <div class="flex items-center gap-3 mb-4">
             <span class="text-sm font-semibold text-red-600 bg-red-100 px-2 py-1 rounded-full">GGPC Data</span>
@@ -106,8 +154,8 @@
                 <thead class="bg-gray-50 text-[10px] uppercase">
                     <tr>
                         <th rowspan="2" class="px-2 py-2 border font-semibold">Month</th>
-                        <th colspan="2" class="px-2 py-2 border bg-yellow-50">Electricity (26th – 25th)</th>
-                        <th colspan="3" class="px-2 py-2 border bg-orange-50">LPG (26th – 25th)</th>
+                        <th colspan="2" class="px-2 py-2 border bg-yellow-50">Electricity</th>
+                        <th colspan="3" class="px-2 py-2 border bg-orange-50">LPG</th>
                         <th colspan="3" class="px-2 py-2 border bg-purple-50">Runtime</th>
                   </tr>
                   <tr class="bg-gray-100 font-semibold">
@@ -118,11 +166,10 @@
                     <th class="p-2 text-center border bg-orange-50">CO2</th>
                     <th class="p-2 text-center border bg-purple-50">Diecast (hrs)</th>
                     <th class="p-2 text-center border bg-purple-50">Machining (hrs)</th>
-                    <th class="p-2 text-center border bg-purple-50">Total Runtime (hrs)</th>
+                    <th class="p-2 text-center border bg-purple-50">Total (hrs)</th>
                   </tr>
                 </thead>
-                <tbody>
-                  </tbody>
+                <tbody></tbody>
             </table>
         </div>
       </div>
@@ -136,8 +183,8 @@
                <thead class="bg-gray-50 text-[10px] uppercase">
                     <tr>
                         <th rowspan="2" class="px-2 py-2 border font-semibold">Month</th>
-                        <th colspan="2" class="px-2 py-2 border bg-yellow-50">Electricity (26th – 25th)</th>
-                        <th colspan="3" class="px-2 py-2 border bg-orange-50">LPG (26th – 25th)</th>
+                        <th colspan="2" class="px-2 py-2 border bg-yellow-50">Electricity</th>
+                        <th colspan="3" class="px-2 py-2 border bg-orange-50">LPG</th>
                         <th colspan="3" class="px-2 py-2 border bg-purple-50">Runtime</th>
                   </tr> 
                   <tr class="bg-gray-100 font-semibold">
@@ -148,59 +195,61 @@
                     <th class="p-2 text-center border bg-orange-50">CO2</th>
                     <th class="p-2 text-center border bg-purple-50">Diecast (hrs)</th>
                     <th class="p-2 text-center border bg-purple-50">Machining (hrs)</th>
-                    <th class="p-2 text-center border bg-purple-50">Total Runtime (hrs)</th>
+                    <th class="p-2 text-center border bg-purple-50">Total (hrs)</th>
                   </tr>
                 </thead>
-                <tbody>
-                    </tbody>
+                <tbody></tbody>
             </table>
         </div>
       </div>
     </div>
     
     <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 my-8">
-      <h3 class="text-lg font-semibold text-gray-800 mb-3">Chart View Options</h3>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <div class="flex items-center gap-3 p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-          <div class="flex items-center">
-            <input type="checkbox" id="energyStackToggle" class="w-5 h-5 accent-blue-600 rounded focus:ring-2 focus:ring-blue-500">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="flex flex-col items-center">
+          <h4 class="text-sm font-semibold text-gray-700 mb-2">Energy View</h4>
+          <div class="flex gap-2 text-sm">
+            <label class="radio-label">
+              <input type="radio" name="energyView" value="total" checked class="hidden">
+              Total (Stacked)
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="energyView" value="breakdown" class="hidden">
+              Breakdown
+            </label>
           </div>
-          <label for="energyStackToggle" class="text-sm font-medium cursor-pointer select-none transition-colors duration-200">
-            Total Electricity & LPG
-          </label>
-          <div class="w-4 h-4 bg-blue-500 rounded-sm opacity-80"></div>
         </div>
-        
-        <div class="flex items-center gap-3 p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-          <div class="flex items-center">
-            <input type="checkbox" id="runtimeStackToggle" class="w-5 h-5 accent-green-600 rounded focus:ring-2 focus:ring-green-500">
+        <div class="flex flex-col items-center">
+          <h4 class="text-sm font-semibold text-gray-700 mb-2">Runtime View</h4>
+          <div class="flex gap-2 text-sm">
+            <label class="radio-label">
+              <input type="radio" name="runtimeView" value="total" checked class="hidden">
+              Total
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="runtimeView" value="breakdown" class="hidden">
+              Breakdown
+            </label>
           </div>
-          <label for="runtimeStackToggle" class="text-sm font-medium cursor-pointer select-none transition-colors duration-200">
-            Total Diecast Runtime & Machining Runtime
-          </label>
-          <div class="w-4 h-4 bg-green-500 rounded-sm opacity-80"></div>
         </div>
-      </div>
-      
-      <div class="mt-3 text-xs text-gray-500 text-center">
-        Toggle to switch between individual and combined views • Changes apply to both GGPC and CDPC charts
       </div>
     </div>
 
 
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 w-full">
       <div class="bg-white p-4 shadow rounded-lg w-full">
+        <h3 class="text-lg font-bold text-gray-800 text-center mb-2">GGPC Chart</h3>
         <div class="relative h-[400px] w-full">
-          <canvas id="ggpcEnergyChart"></canvas>
+          <canvas id="ggpcChart"></canvas>
         </div>
       </div>
       <div class="bg-white p-4 shadow rounded-lg w-full">
+        <h3 class="text-lg font-bold text-gray-800 text-center mb-2">CDPC Chart</h3>
         <div class="relative h-[400px] w-full">
-          <canvas id="cdpcEnergyChart"></canvas>
+          <canvas id="cdpcChart"></canvas>
         </div>
       </div>
     </div>
-
   </div>
 </main>
 

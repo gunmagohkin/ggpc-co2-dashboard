@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard | GGPC vs CDPC</title>
+<title>Dashboard | GGPC vs CDPC Comparison</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
@@ -13,26 +13,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-  body {
-    font-family: 'Inter', sans-serif;
+  body { font-family: 'Inter', sans-serif; }
+  .custom-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
+  .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+  .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  .rotate-180 { transform: rotate(180deg); }
+  /* Highlighted table row */
+  #vsTable tbody tr {
+      transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
   }
-  .custom-scroll::-webkit-scrollbar {
-    height: 8px;
-    width: 8px;
-  }
-  .custom-scroll::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 4px;
-  }
-  .custom-scroll::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
-  }
-  .custom-scroll::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-  }
-  .rotate-180 { 
-      transform: rotate(180deg);
+  .highlight-row {
+    background-color: #f0f9ff !important; /* sky-50 */
+    font-weight: 600;
   }
 </style>
 </head>
@@ -97,6 +90,29 @@
     </div>
 
     <div class="space-y-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-lg shadow-md text-center">
+            <p class="text-sm text-gray-500 uppercase">GGPC Total CO₂</p>
+            <p id="ggpc-kpi-total" class="text-2xl font-bold text-blue-600">0.00</p>
+            <p class="text-xs text-gray-400">t-CO₂</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md text-center">
+            <p class="text-sm text-gray-500 uppercase">CDPC Total CO₂</p>
+            <p id="cdpc-kpi-total" class="text-2xl font-bold text-amber-500">0.00</p>
+            <p class="text-xs text-gray-400">t-CO₂</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md text-center">
+            <p class="text-sm text-gray-500 uppercase">Higher Emitter</p>
+            <p id="kpi-higher-emitter" class="text-2xl font-bold text-red-600">N/A</p>
+            <p class="text-xs text-gray-400">for the year</p>
+        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md text-center">
+            <p class="text-sm text-gray-500 uppercase">Annual Difference</p>
+            <p id="kpi-difference" class="text-2xl font-bold text-gray-700">0.00</p>
+            <p class="text-xs text-gray-400">t-CO₂</p>
+        </div>
+      </div>
+
       <div>
         <div class="flex items-center gap-3 mb-4">
           <span class="text-sm font-semibold text-red-600 bg-red-100 px-2 py-1 rounded-full">GGPC vs. CDPC Data (t-CO₂)</span>
@@ -106,8 +122,8 @@
             <thead class="bg-gray-50 text-[10px] uppercase">
               <tr>
                 <th rowspan="2" class="px-2 py-2 border font-semibold">Month</th>
-                <th colspan="5" class="px-2 py-2 border bg-blue-50">GGPC</th>
-                <th colspan="5" class="px-2 py-2 border bg-yellow-50">CDPC</th>
+                <th colspan="6" class="px-2 py-2 border bg-blue-100 text-blue-800">GGPC</th>
+                <th colspan="6" class="px-2 py-2 border bg-amber-100 text-amber-800">CDPC</th>
               </tr>
               <tr class="font-semibold">
                 <th class="p-2 text-center border bg-blue-50">Electricity</th>
@@ -115,11 +131,13 @@
                 <th class="p-2 text-center border bg-blue-50">Gas</th>
                 <th class="p-2 text-center border bg-blue-50">Diesel</th>
                 <th class="p-2 text-center border bg-blue-50">Oil</th>
-                <th class="p-2 text-center border bg-yellow-50">Electricity</th>
-                <th class="p-2 text-center border bg-yellow-50">LPG</th>
-                <th class="p-2 text-center border bg-yellow-50">Gas</th>
-                <th class="p-2 text-center border bg-yellow-50">Diesel</th>
-                <th class="p-2 text-center border bg-yellow-50">Oil</th>
+                <th class="p-2 text-center border bg-blue-200 font-bold">Total</th>
+                <th class="p-2 text-center border bg-amber-50">Electricity</th>
+                <th class="p-2 text-center border bg-amber-50">LPG</th>
+                <th class="p-2 text-center border bg-amber-50">Gas</th>
+                <th class="p-2 text-center border bg-amber-50">Diesel</th>
+                <th class="p-2 text-center border bg-amber-50">Oil</th>
+                <th class="p-2 text-center border bg-amber-200 font-bold">Total</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -127,24 +145,31 @@
         </div>
       </div>
       
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-800 mb-3">Chart View Options</h3>
-        <div class="flex justify-center">
-          <div class="flex items-center gap-3 p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-            <input type="checkbox" id="stackToggle" class="w-5 h-5 accent-blue-600 rounded focus:ring-2 focus:ring-blue-500">
-            <label for="stackToggle" class="text-sm font-medium cursor-pointer select-none">
-              Show Detailed Breakdown by Source
-            </label>
-          </div>
+      <div class="bg-white p-4 sm:p-6 shadow-md rounded-lg w-full">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-gray-800">Monthly CO₂ Comparison</h2>
+            <div class="flex items-center gap-3 p-2 rounded-lg border border-gray-200 mt-4 md:mt-0">
+                <input type="checkbox" id="detailToggle" class="w-5 h-5 accent-blue-600 rounded focus:ring-2 focus:ring-blue-500">
+                <label for="detailToggle" class="text-sm font-medium cursor-pointer select-none">Show Detailed Breakdown by Source</label>
+            </div>
         </div>
-        <div class="mt-3 text-xs text-gray-500 text-center">
-          Toggle to switch between total emissions and a detailed source breakdown.
+        <div class="relative h-[500px] w-full">
+          <canvas id="monthlyComparisonChart"></canvas>
         </div>
       </div>
 
-      <div class="bg-white p-4 sm:p-6 shadow-md rounded-lg w-full">
-        <div class="relative h-[500px] w-full">
-          <canvas id="comparisonChart"></canvas>
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <div class="bg-white p-4 sm:p-6 shadow-md rounded-lg w-full">
+            <h2 class="text-xl font-bold text-gray-800 text-center mb-4">Annual Source Comparison</h2>
+            <div class="relative h-[400px] w-full">
+              <canvas id="annualSummaryChart"></canvas>
+            </div>
+        </div>
+        <div class="bg-white p-4 sm:p-6 shadow-md rounded-lg w-full">
+            <h2 class="text-xl font-bold text-gray-800 text-center mb-4">Monthly Emission Difference</h2>
+            <div class="relative h-[400px] w-full">
+              <canvas id="differenceChart"></canvas>
+            </div>
         </div>
       </div>
     </div>

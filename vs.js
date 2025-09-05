@@ -1,216 +1,270 @@
-// Global chart instance
-let comparisonChart = null;
+const Dashboard = {
+  // --- Properties ---
+  state: {
+    records: [],
+    year: new Date().getFullYear().toString(),
+    highlightedIndex: null,
+  },
+  charts: {
+    monthly: null,
+    annual: null,
+    difference: null,
+  },
+  dom: {
+    loader: null,
+    yearSelect: null,
+    detailToggle: null,
+    kpi: {}, 
+  },
+  config: {
+    monthNames: ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"],
+    sources: {
+      electricityCO2: { label: 'Electricity', color: '#0ea5e9', field: 'Electricity_CO2' },
+      lpgCO2: { label: 'LPG', color: '#f97316', field: 'lpg_co2' },
+      gasCO2: { label: 'Gas', color: '#64748b', field: 'Gas_CO2' },
+      dieselCO2: { label: 'Diesel', color: '#f59e0b', field: 'Diesel_CO2' },
+      oilCO2: { label: 'Oil', color: '#8b5cf6', field: 'OIL_CO2' },
+    },
+    plantColors: { ggpc: '#3b82f6', cdpc: '#f59e0b' }, // Blue, Amber
+  },
 
-// --- UTILITY FUNCTIONS ---
-function mapRecord(r) {
-  const electricityCO2 = parseFloat(r.Electricity_CO2?.value || 0);
-  const lpgCO2 = parseFloat(r.lpg_co2?.value || 0);
-  const gasCO2 = parseFloat(r.Gas_CO2?.value || 0);
-  const dieselCO2 = parseFloat(r.Diesel_CO2?.value || 0);
-  const oilCO2 = parseFloat(r.OIL_CO2?.value || 0);
-  return {
-    month: new Date(r.Date_To?.value),
-    plant: r.Plant_Location.value,
-    electricityCO2,
-    lpgCO2,
-    gasCO2,
-    dieselCO2,
-    oilCO2,
-    totalCO2: electricityCO2 + lpgCO2 + gasCO2 + dieselCO2 + oilCO2
-  };
-}
-
-async function fetchKintoneData() {
-  const response = await fetch('/.netlify/functions/kintone');
-  if (!response.ok) throw new Error('Failed to fetch data');
-  return response.json();
-}
-
-// --- UI SETUP FUNCTIONS ---
-function setupMobileNavigation() {
-  const menuBtn = document.getElementById('menu-btn');
-  const mobileMenu = document.getElementById('mobile-menu');
-
-  if (menuBtn && mobileMenu) {
-    menuBtn.addEventListener('click', () => {
-        const isClosed = mobileMenu.style.maxHeight === '' || mobileMenu.style.maxHeight === '0px';
-        mobileMenu.style.maxHeight = isClosed ? mobileMenu.scrollHeight + "px" : '0px';
-    });
-  }
-}
-
-function setupDropdowns() {
-  document.querySelectorAll("select").forEach(select => {
-    const iconWrapper = select.nextElementSibling;
-    if (iconWrapper) {
-        select.addEventListener("focus", () => iconWrapper.classList.add("rotate-180"));
-        select.addEventListener("blur", () => iconWrapper.classList.remove("rotate-180"));
-    }
-  });
-}
-
-function setupYearSelect(allRecords) {
-    const yearSelect = document.getElementById('year-select');
-    if (!yearSelect) return [];
-
-    const allYears = Array.from(new Set(
-        allRecords.map(r => r.month.getFullYear())
-    )).sort((a, b) => b - a);
-
-    yearSelect.innerHTML = '';
-    allYears.forEach(year => {
-        const opt = document.createElement('option');
-        opt.value = year;
-        opt.textContent = year;
-        yearSelect.appendChild(opt);
-    });
-    return allYears;
-}
-
-// --- RENDER FUNCTIONS ---
-function renderTable(ggpcData, cdpcData) {
-  const tbody = document.querySelector('#vsTable tbody');
-  tbody.innerHTML = '';
-  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  const fields = ['electricityCO2', 'lpgCO2', 'gasCO2', 'dieselCO2', 'oilCO2'];
-
-  months.forEach((monthName, index) => {
-    const ggpc = ggpcData.find(r => r.month.getMonth() === index);
-    const cdpc = cdpcData.find(r => r.month.getMonth() === index);
-    const tr = document.createElement('tr');
-    tr.className = 'hover:bg-gray-50';
-
-    const monthCell = document.createElement('td');
-    monthCell.textContent = monthName;
-    monthCell.className = 'px-2 py-1 border font-semibold bg-gray-50 text-center';
-    tr.appendChild(monthCell);
-
-    const addCells = (record) => {
-        fields.forEach(field => {
-            const td = document.createElement('td');
-            td.className = 'px-2 py-1 border text-center';
-            const value = record ? record[field] : 0;
-            td.textContent = value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            tr.appendChild(td);
-        });
-    };
-    
-    addCells(ggpc);
-    addCells(cdpc);
-    tbody.appendChild(tr);
-  });
-}
-
-function renderChart(ggpcData, cdpcData, selectedYear, isStacked) {
-  const ctx = document.getElementById('comparisonChart').getContext('2d');
-  if (comparisonChart) {
-    comparisonChart.destroy();
-  }
-  
-  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-  const CO2_SOURCES = [
-      { key: 'electricityCO2', label: 'Electricity', ggpcColor: 'rgba(59, 130, 246, 0.8)', cdpcColor: 'rgba(96, 165, 250, 0.8)' },
-      { key: 'lpgCO2', label: 'LPG', ggpcColor: 'rgba(249, 115, 22, 0.8)', cdpcColor: 'rgba(251, 146, 60, 0.8)' },
-      { key: 'gasCO2', label: 'Gas', ggpcColor: 'rgba(107, 114, 128, 0.8)', cdpcColor: 'rgba(156, 163, 175, 0.8)' },
-      { key: 'dieselCO2', label: 'Diesel', ggpcColor: 'rgba(234, 179, 8, 0.8)', cdpcColor: 'rgba(250, 204, 21, 0.8)' },
-      { key: 'oilCO2', label: 'Oil', ggpcColor: 'rgba(79, 70, 229, 0.8)', cdpcColor: 'rgba(129, 140, 248, 0.8)' }
-  ];
-  
-  let datasets;
-  if (isStacked) {
-      datasets = [];
-      CO2_SOURCES.forEach(source => {
-          datasets.push({
-              label: `GGPC ${source.label}`,
-              data: months.map((_, i) => ggpcData.find(r => r.month.getMonth() === i)?.[source.key] || 0),
-              backgroundColor: source.ggpcColor,
-              stack: 'GGPC'
-          });
-          datasets.push({
-              label: `CDPC ${source.label}`,
-              data: months.map((_, i) => cdpcData.find(r => r.month.getMonth() === i)?.[source.key] || 0),
-              backgroundColor: source.cdpcColor,
-              stack: 'CDPC'
-          });
-      });
-  } else {
-      datasets = [
-          {
-              label: 'GGPC Total CO₂',
-              data: months.map((_, i) => ggpcData.find(r => r.month.getMonth() === i)?.totalCO2 || 0),
-              backgroundColor: 'rgba(59, 130, 246, 0.8)'
-          },
-          {
-              label: 'CDPC Total CO₂',
-              data: months.map((_, i) => cdpcData.find(r => r.month.getMonth() === i)?.totalCO2 || 0),
-              backgroundColor: 'rgba(250, 204, 21, 0.8)'
-          }
-      ];
-  }
-
-  comparisonChart = new Chart(ctx, {
-    type: 'bar',
-    data: { labels: months, datasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        title: { display: true, text: `Monthly CO₂ Emissions: GGPC vs. CDPC (${selectedYear})`, font: { size: 16, weight: 'bold' } },
-        legend: { position: 'bottom' },
-        tooltip: {
-            callbacks: {
-                label: (context) => `${context.dataset.label}: ${context.formattedValue} t-CO₂`
-            }
-        }
-      },
-      scales: {
-        x: { grid: { display: false } },
-        y: { beginAtZero: true, title: { display: true, text: 'CO₂ Emission (t-CO₂)' } }
-      }
-    }
-  });
-}
-
-// --- MAIN DASHBOARD LOGIC ---
-async function main() {
-  const loader = document.getElementById('loader');
-  try {
-    const kintoneData = await fetchKintoneData();
-    const allRecords = kintoneData.records.map(mapRecord);
-    
-    setupMobileNavigation();
-    setupDropdowns();
+  // --- Initialization ---
+  async init() {
+    this.cacheDomElements();
+    this.setupEventListeners();
+    await this.loadAndRenderData();
     lucide.createIcons();
-    const allYears = setupYearSelect(allRecords);
+  },
 
-    const stackToggle = document.getElementById('stackToggle');
-    const yearSelect = document.getElementById('year-select');
+  cacheDomElements() {
+    this.dom.loader = document.getElementById('loader');
+    this.dom.yearSelect = document.getElementById('year-select');
+    this.dom.detailToggle = document.getElementById('detailToggle');
+    this.dom.kpi = {
+      ggpcTotal: document.getElementById('ggpc-kpi-total'),
+      cdpcTotal: document.getElementById('cdpc-kpi-total'),
+      higherEmitter: document.getElementById('kpi-higher-emitter'),
+      difference: document.getElementById('kpi-difference'),
+    };
+  },
+  
+  // --- Data Handling ---
+  async fetchData() {
+    this.dom.loader.style.display = 'flex';
+    try {
+      const response = await fetch('/.netlify/functions/kintone');
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      this.state.records = data.records || [];
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    } finally {
+      this.dom.loader.style.display = 'none';
+    }
+  },
 
-    function updateDashboard(selectedYear) {
-      const isStacked = stackToggle.checked;
-      const year = parseInt(selectedYear);
-      
-      const ggpcRecords = allRecords.filter(r => r.plant === 'GGPC' && r.month.getFullYear() === year);
-      const cdpcRecords = allRecords.filter(r => r.plant === 'CDPC' && r.month.getFullYear() === year);
+  processData() {
+    const processed = {};
+    const years = [...new Set(this.state.records.map(r => new Date(r.Date_To?.value).getFullYear()))];
 
-      renderTable(ggpcRecords, cdpcRecords);
-      renderChart(ggpcRecords, cdpcRecords, selectedYear, isStacked);
+    years.forEach(year => {
+        processed[year] = {
+            ggpc: Array(12).fill(null).map(() => ({ total: 0 })),
+            cdpc: Array(12).fill(null).map(() => ({ total: 0 })),
+        };
+        const yearRecords = this.state.records.filter(r => new Date(r.Date_To?.value).getFullYear() === year);
+        
+        for (const record of yearRecords) {
+            const plant = record.Plant_Location?.value?.toLowerCase();
+            const monthIndex = new Date(record.Date_To?.value).getMonth();
+            if (!plant || monthIndex < 0 || !processed[year][plant]) continue;
+
+            const monthlyData = processed[year][plant][monthIndex];
+            let total = 0;
+            // *** THIS IS THE CORRECTED LOGIC ***
+            for (const [key, sourceConfig] of Object.entries(this.config.sources)) {
+                const value = parseFloat(record[sourceConfig.field]?.value) || 0;
+                monthlyData[key] = (monthlyData[key] || 0) + value;
+                total += value;
+            }
+            monthlyData.total += total;
+        }
+    });
+    return processed;
+  },
+
+  // --- Rendering ---
+  async loadAndRenderData() {
+    if (!this.state.records.length) {
+        await this.fetchData();
+        this.setupYearSelect();
+    }
+    this.state.year = this.dom.yearSelect.value;
+    const allData = this.processData();
+    const yearData = allData[this.state.year] || { ggpc: [], cdpc: [] };
+
+    this.renderTable(yearData);
+    this.renderKpiCards(yearData);
+    this.renderMonthlyChart(yearData);
+    this.renderAnnualChart(yearData);
+    this.renderDifferenceChart(yearData);
+  },
+  
+  renderTable(data) {
+    const tbody = document.querySelector('#vsTable tbody');
+    tbody.innerHTML = '';
+    for (let i = 0; i < 12; i++) {
+        const row = tbody.insertRow();
+        const monthName = new Date(this.state.year, i).toLocaleString('default', { month: 'long' });
+        let rowHTML = `<td class="px-2 py-1 border font-semibold bg-gray-50 text-center">${monthName}</td>`;
+        
+        ['ggpc', 'cdpc'].forEach(plant => {
+            const monthData = data[plant][i];
+            for (const key in this.config.sources) {
+                rowHTML += `<td class="px-2 py-1 border text-center">${(monthData[key] || 0).toFixed(2)}</td>`;
+            }
+            rowHTML += `<td class="px-2 py-1 border text-center font-bold">${(monthData.total || 0).toFixed(2)}</td>`;
+        });
+        row.innerHTML = rowHTML;
+    }
+  },
+
+  renderKpiCards(data) {
+      const ggpcTotal = data.ggpc.reduce((sum, month) => sum + month.total, 0);
+      const cdpcTotal = data.cdpc.reduce((sum, month) => sum + month.total, 0);
+      const difference = Math.abs(ggpcTotal - cdpcTotal);
+      let higherEmitter = 'TIE';
+      if (ggpcTotal > cdpcTotal) higherEmitter = 'GGPC';
+      if (cdpcTotal > ggpcTotal) higherEmitter = 'CDPC';
+
+      this.dom.kpi.ggpcTotal.textContent = ggpcTotal.toFixed(2);
+      this.dom.kpi.cdpcTotal.textContent = cdpcTotal.toFixed(2);
+      this.dom.kpi.higherEmitter.textContent = higherEmitter;
+      this.dom.kpi.difference.textContent = difference.toFixed(2);
+  },
+
+  renderMonthlyChart(data) {
+    if (this.charts.monthly) this.charts.monthly.destroy();
+    const isDetailed = this.dom.detailToggle.checked;
+    let datasets = [];
+
+    if (isDetailed) {
+      for (const [key, { label }] of Object.entries(this.config.sources)) {
+          datasets.push({ label: `GGPC ${label}`, data: data.ggpc.map(m => m[key] || 0), backgroundColor: this.config.plantColors.ggpc, stack: 'GGPC' });
+          datasets.push({ label: `CDPC ${label}`, data: data.cdpc.map(m => m[key] || 0), backgroundColor: this.config.plantColors.cdpc, stack: 'CDPC' });
+      }
+    } else {
+      datasets.push({ label: 'GGPC Total CO₂', data: data.ggpc.map(m => m.total), backgroundColor: this.config.plantColors.ggpc });
+      datasets.push({ label: 'CDPC Total CO₂', data: data.cdpc.map(m => m.total), backgroundColor: this.config.plantColors.cdpc });
     }
 
-    stackToggle.addEventListener('change', () => updateDashboard(yearSelect.value));
-    yearSelect.addEventListener('change', (e) => updateDashboard(e.target.value));
+    const ctx = document.getElementById('monthlyComparisonChart').getContext('2d');
+    this.charts.monthly = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: this.config.monthNames, datasets },
+      options: this.getMonthlyChartConfig(),
+    });
+  },
+  
+  renderAnnualChart(data) {
+    if (this.charts.annual) this.charts.annual.destroy();
+    const annualGGPC = data.ggpc.reduce((acc, month) => {
+        for(const key in this.config.sources) acc[key] = (acc[key] || 0) + (month[key] || 0);
+        return acc;
+    }, {});
+    const annualCDPC = data.cdpc.reduce((acc, month) => {
+        for(const key in this.config.sources) acc[key] = (acc[key] || 0) + (month[key] || 0);
+        return acc;
+    }, {});
+    
+    const datasets = [
+        { label: 'GGPC', data: Object.keys(this.config.sources).map(key => annualGGPC[key] || 0), backgroundColor: this.config.plantColors.ggpc },
+        { label: 'CDPC', data: Object.keys(this.config.sources).map(key => annualCDPC[key] || 0), backgroundColor: this.config.plantColors.cdpc },
+    ];
 
-    if (allYears.length > 0) {
-      updateDashboard(allYears[0]);
+    const ctx = document.getElementById('annualSummaryChart').getContext('2d');
+    this.charts.annual = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: Object.values(this.config.sources).map(s => s.label), datasets },
+        options: {
+            responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+            plugins: { legend: { position: 'top' } },
+            scales: { y: { beginAtZero: true }, x: { title: { display: true, text: 'Total Annual CO₂ (t-CO₂)'}}}
+        }
+    });
+  },
+  
+  renderDifferenceChart(data) {
+    if (this.charts.difference) this.charts.difference.destroy();
+    const diffData = data.ggpc.map((ggpcMonth, i) => ggpcMonth.total - data.cdpc[i].total);
+    const backgroundColors = diffData.map(d => d >= 0 ? 'rgba(59, 130, 246, 0.7)' : 'rgba(245, 158, 11, 0.7)');
+    
+    const ctx = document.getElementById('differenceChart').getContext('2d');
+    this.charts.difference = new Chart(ctx, {
+        type: 'bar',
+        data: { 
+            labels: this.config.monthNames, 
+            datasets: [{ label: 'Difference (GGPC - CDPC)', data: diffData, backgroundColor: backgroundColors }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `Difference: ${c.formattedValue} t-CO₂` }}},
+            scales: { y: { beginAtZero: false, title: { display: true, text: 'GGPC higher <==> CDPC higher' } } }
+        }
+    });
+  },
+
+  // --- Configs and Handlers ---
+  getMonthlyChartConfig() {
+    return {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      onClick: (event, elements) => this.chartClickHandler(elements),
+      plugins: {
+        title: { display: false },
+        legend: { position: this.dom.detailToggle.checked ? 'right' : 'top' },
+        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.formattedValue} t-CO₂` } }
+      },
+      scales: { x: { grid: { display: false } }, y: { beginAtZero: true, title: { display: true, text: 'CO₂ Emission (t-CO₂)' } } }
     }
+  },
 
-  } catch (error) {
-    console.error("Failed to initialize dashboard:", error);
-    alert('Failed to load critical data. Please refresh the page.');
-  } finally {
-    if (loader) loader.style.display = 'none';
-  }
-}
+  setupEventListeners() {
+    this.dom.yearSelect.addEventListener('change', () => this.loadAndRenderData());
+    this.dom.detailToggle.addEventListener('change', () => this.loadAndRenderData());
+    document.getElementById('menu-btn')?.addEventListener('click', () => {
+        const menu = document.getElementById('mobile-menu');
+        menu.style.maxHeight = (menu.style.maxHeight === '0px' || !menu.style.maxHeight) ? `${menu.scrollHeight}px` : '0px';
+    });
+  },
+  
+  setupYearSelect() {
+    const years = [...new Set(this.state.records.map(r => new Date(r.Date_To?.value).getFullYear()))].sort((a,b)=>b-a);
+    this.dom.yearSelect.innerHTML = '';
+    years.forEach(year => {
+        const option = document.createElement('option');
+        option.value = year; option.textContent = year;
+        this.dom.yearSelect.appendChild(option);
+    });
+    if (this.dom.yearSelect.value) {
+        this.state.year = this.dom.yearSelect.value;
+    }
+  },
 
-document.addEventListener('DOMContentLoaded', main);
+  chartClickHandler(elements) {
+    const tableRows = document.querySelectorAll('#vsTable tbody tr');
+    if (!elements.length) return;
+    const index = elements[0].index;
+
+    if (index === this.state.highlightedIndex) {
+      tableRows[index].classList.remove('highlight-row');
+      this.state.highlightedIndex = null;
+    } else {
+      tableRows.forEach(row => row.classList.remove('highlight-row'));
+      tableRows[index].classList.add('highlight-row');
+      this.state.highlightedIndex = index;
+    }
+  },
+};
+
+document.addEventListener('DOMContentLoaded', () => Dashboard.init());
